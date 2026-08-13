@@ -1,0 +1,75 @@
+name: Reference Host
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/reference-host.yml"
+      - "examples/reference-host/**"
+      - "tests/test_examples/test_reference_host.py"
+      - "crates/invokrum-cli/**"
+      - "crates/invokrum-host/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/reference-host.yml"
+      - "examples/reference-host/**"
+      - "tests/test_examples/test_reference_host.py"
+      - "crates/invokrum-cli/**"
+      - "crates/invokrum-host/**"
+
+permissions:
+  contents: read
+
+jobs:
+  reference-host:
+    name: Independent subprocess reference host
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Run host-side unit tests
+        run: python3 -m unittest tests.test_examples.test_reference_host
+      - name: Build Invokrum release binary
+        run: cargo build -p invokrum-cli --release --locked
+      - name: Exercise capabilities and exact-byte persistence
+        working-directory: examples/reference-host
+        run: |
+          set -euo pipefail
+          rm -rf .state
+          python3 reference_host.py --invokrum ../../target/release/invokrum capabilities
+          python3 reference_host.py \
+            --invokrum ../../target/release/invokrum \
+            resolve \
+            --pack pack.yaml \
+            --profile default \
+            --context-out .state/context.txt \
+            --lock-out .state/invokrum.lock.json
+          python3 reference_host.py \
+            --invokrum ../../target/release/invokrum \
+            verify \
+            --pack pack.yaml \
+            --profile default \
+            --lock .state/invokrum.lock.json
+          test -s .state/context.txt
+          test -s .state/invokrum.lock.json
+      - name: Exercise deterministic drift blocking
+        working-directory: examples/reference-host
+        run: |
+          set -euo pipefail
+          cp overlays/review.md "$RUNNER_TEMP/review.md"
+          printf '\nAdditional consumer-owned review constraint.\n' >> overlays/review.md
+          set +e
+          output="$(python3 reference_host.py \
+            --invokrum ../../target/release/invokrum \
+            verify \
+            --pack pack.yaml \
+            --profile default \
+            --lock .state/invokrum.lock.json)"
+          status=$?
+          set -e
+          cp "$RUNNER_TEMP/review.md" overlays/review.md
+          test "$status" -eq 2
+          printf '%s\n' "$output" | python3 -c 'import json,sys; value=json.load(sys.stdin); assert value["verified"] is False; assert value["drifts"]'
