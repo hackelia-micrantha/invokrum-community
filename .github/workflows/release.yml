@@ -1,0 +1,164 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    name: Re-run required delivery gates
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  prepare:
+    name: Validate tag and create draft
+    needs: quality
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out complete repository history without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require exact immutable tag commit on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_commit="$(git rev-list --max-count=1 "$GITHUB_REF_NAME")"
+          test "$tag_commit" = "$GITHUB_SHA"
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - name: Validate tag against workspace version
+        run: python3 scripts/release.py validate-tag --tag "$GITHUB_REF_NAME"
+      - name: Create or reuse draft prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            is_draft="$(gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)"
+            if [ "$is_draft" != "true" ]; then
+              echo "release $GITHUB_REF_NAME is already published and will not be modified" >&2
+              exit 1
+            fi
+            gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft --prerelease
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --draft \
+              --prerelease \
+              --verify-tag \
+              --generate-notes \
+              --title "$GITHUB_REF_NAME"
+          fi
+
+  build:
+    name: Build and attest (${{ matrix.target }})
+    needs:
+      - quality
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            binary: target/x86_64-unknown-linux-gnu/release/invokrum
+            python: python3
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+            binary: target/x86_64-apple-darwin/release/invokrum
+            python: python3
+          - runner: windows-2025
+            target: x86_64-pc-windows-msvc
+            binary: target/x86_64-pc-windows-msvc/release/invokrum.exe
+            python: python
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - name: Check out tagged source without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Install release target
+        run: rustup target add ${{ matrix.target }}
+      - name: Capture deterministic source timestamp
+        shell: bash
+        run: echo "SOURCE_DATE_EPOCH=$(git show -s --format=%ct HEAD)" >> "$GITHUB_ENV"
+      - name: Build release binary
+        env:
+          CARGO_INCREMENTAL: "0"
+        run: cargo build -p invokrum-cli --release --target ${{ matrix.target }} --locked
+      - name: Generate deterministic SPDX SBOM
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          "${{ matrix.python }}" scripts/release.py sbom \
+            --target "${{ matrix.target }}" \
+            --output "dist/invokrum-$GITHUB_REF_NAME-${{ matrix.target }}.spdx.json" \
+            --epoch "$SOURCE_DATE_EPOCH" \
+            --revision "$GITHUB_SHA"
+      - name: Package deterministic archive and checksum
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          "${{ matrix.python }}" scripts/release.py package \
+            --target "${{ matrix.target }}" \
+            --binary "${{ matrix.binary }}" \
+            --sbom "dist/invokrum-$GITHUB_REF_NAME-${{ matrix.target }}.spdx.json" \
+            --dist dist \
+            --epoch "$SOURCE_DATE_EPOCH"
+      - name: Attest build provenance
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26
+        with:
+          subject-path: ${{ steps.package.outputs.archive }}
+      - name: Attest SPDX SBOM
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26
+        with:
+          subject-path: ${{ steps.package.outputs.archive }}
+          sbom-path: ${{ steps.package.outputs.sbom }}
+      - name: Upload immutable release inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release upload "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            "${{ steps.package.outputs.archive }}" \
+            "${{ steps.package.outputs.checksum }}" \
+            "${{ steps.package.outputs.sbom }}" \
+            --clobber
+
+  publish:
+    name: Publish prerelease
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Publish only after all targets succeed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft=false --prerelease

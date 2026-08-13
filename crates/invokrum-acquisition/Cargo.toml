@@ -1,0 +1,18 @@
+[package]
+name = "invokrum-acquisition"
+description = "Offline acquisition use cases for verifying Invokrum bundle candidates"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+invokrum-digest = { version = "0.1.0", path = "../invokrum-digest" }
+invokrum-distribution = { version = "0.1.0", path = "../invokrum-distribution" }
+
+[lints]
+workspace = true

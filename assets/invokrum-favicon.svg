@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Invokrum favicon</title>
+  <desc id="desc">Simplified Invokrum mark with green protective bracts surrounding a blue core inside a dark hexagon.</desc>
+  <path fill="#17232c" d="M32 3 57 17v30L32 61 7 47V17z"/>
+  <path fill="#72cf79" d="M30 22C22 14 14 14 10 16c3 9 10 15 20 16-3-3-5-6-7-9 3 3 5 5 7 6z"/>
+  <path fill="#72cf79" d="M34 22c8-8 16-8 20-6-3 9-10 15-20 16 3-3 5-6 7-9-3 3-5 5-7 6z"/>
+  <path fill="#a2e482" d="M32 10c6 6 8 12 6 18-2-3-4-5-6-7-2 2-4 4-6 7-2-6 0-12 6-18z"/>
+  <circle cx="32" cy="31" r="9" fill="#58c8e8" stroke="#d7f8fc" stroke-width="2.5"/>
+</svg>

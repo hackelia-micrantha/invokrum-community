@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://invokrum.dev/schema/pack-v1.json",
+  "title": "Invokrum overlay pack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "classes"],
+  "properties": {
+    "schema": { "const": "invokrum.dev/v1" },
+    "id": { "$ref": "#/$defs/identifier" },
+    "classes": { "type": "array", "items": { "$ref": "#/$defs/class" } },
+    "overlays": { "type": "array", "default": [], "items": { "$ref": "#/$defs/overlay" } },
+    "profiles": { "type": "array", "default": [], "items": { "$ref": "#/$defs/profile" } },
+    "variables": { "type": "array", "default": [], "items": { "$ref": "#/$defs/variable" } }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "portablePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*:)(?!.*//)(?!\\.{1,2}(?:/|$))(?!.*\\/\\.{1,2}(?:/|$))(?!.*\\/$).+$"
+    },
+    "class": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "order", "minimum"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "order": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+        "minimum": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+        "maximum": { "type": ["integer", "null"], "minimum": 0, "maximum": 4294967295 }
+      }
+    },
+    "overlay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "class", "source"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "class": { "$ref": "#/$defs/identifier" },
+        "source": { "$ref": "#/$defs/portablePath" },
+        "incompatible_with": {
+          "type": "array",
+          "uniqueItems": true,
+          "default": [],
+          "items": { "$ref": "#/$defs/identifier" }
+        }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "selections"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "selections": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/identifier" },
+          "additionalProperties": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/identifier" }
+          }
+        }
+      }
+    },
+    "variable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "sensitivity"],
+      "properties": {
+        "name": { "$ref": "#/$defs/identifier" },
+        "sensitivity": { "enum": ["public", "secret"] }
+      }
+    }
+  }
+}

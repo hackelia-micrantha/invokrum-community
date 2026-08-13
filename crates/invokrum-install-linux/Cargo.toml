@@ -1,0 +1,31 @@
+[package]
+name = "invokrum-install-linux"
+description = "Linux content-addressed installation for verified Invokrum bundles"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+invokrum-acquisition = { version = "0.1.0", path = "../invokrum-acquisition" }
+invokrum-acquisition-linux = { version = "0.1.0", path = "../invokrum-acquisition-linux" }
+invokrum-digest = { version = "0.1.0", path = "../invokrum-digest" }
+invokrum-distribution = { version = "0.1.0", path = "../invokrum-distribution" }
+invokrum-install = { version = "0.1.0", path = "../invokrum-install" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dev-dependencies]
+invokrum-acquisition-archive = { version = "0.1.0", path = "../invokrum-acquisition-archive" }
+invokrum-core = { version = "0.1.0", path = "../invokrum-core" }
+invokrum-fs = { version = "0.1.0", path = "../invokrum-fs" }
+invokrum-schema = { version = "0.1.0", path = "../invokrum-schema" }
+# Concrete crypto is test-only so integration can prove the outer verifier -> authorization -> store boundary.
+invokrum-verifier-ed25519 = { version = "0.1.0", path = "../invokrum-verifier-ed25519" }
+
+[lints]
+workspace = true

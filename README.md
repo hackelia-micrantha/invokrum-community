@@ -8,15 +8,15 @@ This repository is the public distribution and contribution surface for Invokrum
 
 The canonical development repository is maintained separately. Public implementation changes are promoted here deliberately through reviewed, allowlisted changes rather than by mirroring private repository history.
 
-The initial code baseline will be imported from the final public `hackelia-micrantha/invokrum` commit immediately before that canonical repository changes visibility. The import will record the exact upstream commit and account for repository-relocation-only differences.
+The initial code baseline was imported from the final selected public `hackelia-micrantha/invokrum` source snapshot before that canonical repository changes visibility. `UPSTREAM.md` records the exact source commit and accounts for repository-relocation-only differences.
 
 ## Current status
 
-Repository split preparation is in progress. Until the baseline import lands, this repository contains only the public repository scaffolding and license.
-
-After cutover, this repository is expected to contain the supported public Invokrum source, schemas, examples, compatibility fixtures, documentation, CI, and releases that can be built and evaluated without access to the private canonical repository.
+The initial public implementation baseline is imported from canonical source snapshot `0e6083d0608d22673b7172ce3330328c64be05bc`. This repository now contains the supported public Invokrum source, schemas, examples, compatibility fixtures, documentation, CI, and release tooling needed to build and evaluate the community distribution independently.
 
 ## Design expectations
+
+The public security claims and residual risks are defined by the [threat model](docs/security/threat-model.md) and must remain backed by controls and tests available in this repository.
 
 The community distribution must remain independently usable:
 

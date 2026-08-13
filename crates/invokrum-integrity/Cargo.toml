@@ -1,0 +1,16 @@
+[package]
+name = "invokrum-integrity"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+invokrum-core = { version = "0.1.0", path = "../invokrum-core" }
+invokrum-digest = { version = "0.1.0", path = "../invokrum-digest" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[lints]
+workspace = true

@@ -1,0 +1,9 @@
+* @ryjen
+
+/.github/workflows/ @ryjen
+/deny.toml @ryjen
+/SECURITY.md @ryjen
+/docs/security/ @ryjen
+/scripts/check_contract_changes.py @ryjen
+/scripts/check_workflow_pins.py @ryjen
+/scripts/release.py @ryjen

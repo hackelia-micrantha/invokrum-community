@@ -1,0 +1,95 @@
+name: Publish Existing Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing immutable release tag
+        required: true
+        default: v0.1.0
+        type: string
+      confirmation:
+        description: Type PUBLISH RELEASE
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-existing-release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Validate and publish existing draft release
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Validate immutable tag and complete draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "$CONFIRMATION" != "PUBLISH RELEASE" ]; then
+            echo "confirmation must be exactly PUBLISH RELEASE" >&2
+            exit 1
+          fi
+
+          if ! gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" >/dev/null 2>&1; then
+            echo "tag does not exist: $TAG" >&2
+            exit 1
+          fi
+
+          release_json="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease,tagName,assets)"
+          is_draft="$(jq -r '.isDraft' <<<"$release_json")"
+          tag_name="$(jq -r '.tagName' <<<"$release_json")"
+
+          if [ "$tag_name" != "$TAG" ]; then
+            echo "release tag mismatch: expected $TAG, got $tag_name" >&2
+            exit 1
+          fi
+
+          if [ "$is_draft" != "true" ]; then
+            echo "release $TAG is not a draft and will not be modified" >&2
+            exit 1
+          fi
+
+          version="${TAG#v}"
+          expected_assets=(
+            "invokrum-v${version}-x86_64-unknown-linux-gnu.tar.gz"
+            "invokrum-v${version}-x86_64-unknown-linux-gnu.tar.gz.sha256"
+            "invokrum-${TAG}-x86_64-unknown-linux-gnu.spdx.json"
+            "invokrum-v${version}-x86_64-apple-darwin.tar.gz"
+            "invokrum-v${version}-x86_64-apple-darwin.tar.gz.sha256"
+            "invokrum-${TAG}-x86_64-apple-darwin.spdx.json"
+            "invokrum-v${version}-x86_64-pc-windows-msvc.zip"
+            "invokrum-v${version}-x86_64-pc-windows-msvc.zip.sha256"
+            "invokrum-${TAG}-x86_64-pc-windows-msvc.spdx.json"
+          )
+
+          mapfile -t actual_assets < <(jq -r '.assets[].name' <<<"$release_json" | sort)
+          mapfile -t required_assets < <(printf '%s\n' "${expected_assets[@]}" | sort)
+
+          missing=0
+          for expected in "${required_assets[@]}"; do
+            if ! printf '%s\n' "${actual_assets[@]}" | grep -Fxq -- "$expected"; then
+              echo "missing required release asset: $expected" >&2
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+          echo "Validated complete draft release $TAG with ${#required_assets[@]} required assets"
+
+      - name: Publish prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --prerelease

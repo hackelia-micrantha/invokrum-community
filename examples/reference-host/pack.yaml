@@ -1,0 +1,26 @@
+schema: invokrum.dev/v1
+id: independent-reference-host
+classes:
+  - id: foundation
+    order: 10
+    minimum: 1
+    maximum: 1
+  - id: task
+    order: 20
+    minimum: 1
+    maximum: 1
+overlays:
+  - id: safety-foundation
+    class: foundation
+    source: overlays/foundation.md
+  - id: review-task
+    class: task
+    source: overlays/review.md
+profiles:
+  - id: default
+    selections:
+      foundation:
+        - safety-foundation
+      task:
+        - review-task
+variables: []

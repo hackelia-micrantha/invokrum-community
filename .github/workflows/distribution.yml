@@ -1,0 +1,111 @@
+name: Distribution Contracts
+
+on:
+  pull_request:
+    paths:
+      - "crates/invokrum-digest/**"
+      - "crates/invokrum-distribution/**"
+      - "crates/invokrum-distribution-json/**"
+      - "crates/invokrum-acquisition/**"
+      - "crates/invokrum-acquisition-linux/**"
+      - "crates/invokrum-acquisition-archive/**"
+      - "crates/invokrum-install/**"
+      - "crates/invokrum-install-linux/**"
+      - "schemas/invokrum-pack-bundle-v1.schema.json"
+      - "tests/fixtures/bundle/**"
+      - "docs/bundle-format-v1.md"
+      - "docs/architecture/bundle-distribution-boundary.md"
+      - "docs/security/bundle-manifest-security.md"
+      - "docs/security/offline-candidate-verification.md"
+      - "docs/security/linux-local-installation.md"
+      - "docs/security/archive-candidate-ingestion.md"
+      - ".github/workflows/distribution.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "crates/invokrum-digest/**"
+      - "crates/invokrum-distribution/**"
+      - "crates/invokrum-distribution-json/**"
+      - "crates/invokrum-acquisition/**"
+      - "crates/invokrum-acquisition-linux/**"
+      - "crates/invokrum-acquisition-archive/**"
+      - "crates/invokrum-install/**"
+      - "crates/invokrum-install-linux/**"
+      - "schemas/invokrum-pack-bundle-v1.schema.json"
+      - "tests/fixtures/bundle/**"
+      - "docs/bundle-format-v1.md"
+      - "docs/architecture/bundle-distribution-boundary.md"
+      - "docs/security/bundle-manifest-security.md"
+      - "docs/security/offline-candidate-verification.md"
+      - "docs/security/linux-local-installation.md"
+      - "docs/security/archive-candidate-ingestion.md"
+      - ".github/workflows/distribution.yml"
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust-contracts:
+    name: Distribution, acquisition, installation, and digest contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Test neutral digest primitive
+        run: cargo test -p invokrum-digest --all-targets --all-features --locked
+      - name: Test distribution domain
+        run: cargo test -p invokrum-distribution --all-targets --all-features --locked
+      - name: Test canonical bundle adapter
+        run: cargo test -p invokrum-distribution-json --all-targets --all-features --locked
+      - name: Test offline candidate verification
+        run: cargo test -p invokrum-acquisition --all-targets --all-features --locked
+      - name: Test Linux local candidate loading
+        run: cargo test -p invokrum-acquisition-linux --all-targets --all-features --locked
+      - name: Test bounded archive candidate loading
+        run: cargo test -p invokrum-acquisition-archive --all-targets --all-features --locked
+      - name: Test installation orchestration
+        run: cargo test -p invokrum-install --all-targets --all-features --locked
+      - name: Test Linux content-addressed installation
+        run: cargo test -p invokrum-install-linux --all-targets --all-features --locked
+      - name: Test composition integrity compatibility wrapper
+        run: cargo test -p invokrum-integrity --all-targets --all-features --locked
+
+  bundle-schema:
+    name: Pack bundle schema
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned schema validator
+        run: |
+          python3 -m venv .ci-schema
+          .ci-schema/bin/pip install --disable-pip-version-check -r .github/requirements-schema.txt
+      - name: Validate bundle schema metaschema
+        run: .ci-schema/bin/check-jsonschema --check-metaschema schemas/invokrum-pack-bundle-v1.schema.json
+      - name: Validate canonical bundle fixture
+        run: >-
+          .ci-schema/bin/check-jsonschema
+          --schemafile schemas/invokrum-pack-bundle-v1.schema.json
+          tests/fixtures/bundle/minimal-bundle.json
+      - name: Reject invalid bundle path fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          for fixture in \
+            tests/fixtures/bundle/invalid-unicode-path.json \
+            tests/fixtures/bundle/invalid-control-path.json
+          do
+            if .ci-schema/bin/check-jsonschema \
+              --schemafile schemas/invokrum-pack-bundle-v1.schema.json \
+              "$fixture"
+            then
+              echo "expected schema rejection: $fixture" >&2
+              exit 1
+            fi
+          done

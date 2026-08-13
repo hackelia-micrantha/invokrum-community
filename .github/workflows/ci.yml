@@ -1,0 +1,265 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  quality:
+    name: Formatting and linting
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Check formatting
+        run: cargo fmt --all --check
+      - name: Run Clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  architecture:
+    name: Architecture boundaries
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Check dependency direction
+        run: python3 scripts/check_architecture.py
+      - name: Check immutable workflow action references
+        run: python3 scripts/check_workflow_pins.py
+      - name: Test repository policy checkers
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - name: Check threat-model contract
+        run: python3 scripts/check_threat_model.py
+      - name: Check repository-local documentation links
+        run: python3 scripts/check_markdown_links.py
+
+  contract-changes:
+    name: Compatibility contract cochanges
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out complete pull-request history
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Check compatibility documentation and tests
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 scripts/check_contract_changes.py --base "$BASE_SHA" --head HEAD
+
+  dependency-security:
+    name: Dependency, license, and secret policy
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out complete repository history
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Install pinned project Rust toolchain
+        run: rustup show
+      - name: Install current cargo-deny with isolated stable toolchain
+        run: cargo +stable install cargo-deny --version 0.19.7 --locked
+      - name: Audit advisories, licenses, bans, and sources
+        run: cargo deny check advisories bans licenses sources
+      - name: Install checksum-verified Gitleaks
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/gitleaks.tar.gz"
+          curl --fail --location --silent --show-error \
+            --output "$archive" \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $archive" \
+            | sha256sum --check --strict
+          tar --extract --gzip --file "$archive" --directory "$RUNNER_TEMP" gitleaks
+      - name: Scan complete Git history for secrets
+        run: >-
+          "$RUNNER_TEMP/gitleaks" git --redact --no-banner --no-color
+          --log-opts="--all" .
+
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Run unit tests
+        run: cargo test --workspace --lib --all-features --locked
+
+  core-integration:
+    name: Core integration tests
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Run core integration tests
+        run: cargo test -p invokrum-core --tests --all-features --locked
+
+  filesystem-integration:
+    name: Filesystem integration tests
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Run fail-closed filesystem tests
+        run: cargo test -p invokrum-fs --tests --all-features --locked
+
+  integrity-integration:
+    name: Integrity integration tests
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Run lockfile and drift tests
+        run: cargo test -p invokrum-integrity --tests --all-features --locked
+
+  schema-integration:
+    name: Schema integration tests
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Install pinned schema validator
+        run: |
+          python3 -m venv .ci-schema
+          .ci-schema/bin/pip install --disable-pip-version-check -r .github/requirements-schema.txt
+      - name: Validate schema metaschema
+        run: .ci-schema/bin/check-jsonschema --check-metaschema schemas/invokrum-pack-v1.schema.json
+      - name: Validate reference fixtures against schema
+        run: |
+          .ci-schema/bin/check-jsonschema \
+            --schemafile schemas/invokrum-pack-v1.schema.json \
+            tests/fixtures/schema/minimal-pack.json \
+            tests/fixtures/schema/minimal-pack.yaml
+      - name: Run every schema adapter integration test
+        run: cargo test -p invokrum-schema --tests --all-features --locked
+
+  e2e:
+    name: End-to-end and golden tests
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Run every CLI integration and golden test
+        run: cargo test -p invokrum-cli --tests --all-features --locked
+
+  release-smoke:
+    name: Deterministic Linux release smoke
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Build release CLI
+        run: cargo build -p invokrum-cli --release --locked
+      - name: Reproduce SPDX, archive, and checksum bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          epoch="$(git show -s --format=%ct HEAD)"
+          revision="$(git rev-parse HEAD)"
+          rm -rf release-smoke
+          mkdir -p release-smoke/a release-smoke/b
+
+          python3 scripts/release.py sbom \
+            --target x86_64-unknown-linux-gnu \
+            --output release-smoke/a/sbom.spdx.json \
+            --epoch "$epoch" \
+            --revision "$revision"
+          python3 scripts/release.py sbom \
+            --target x86_64-unknown-linux-gnu \
+            --output release-smoke/b/sbom.spdx.json \
+            --epoch "$epoch" \
+            --revision "$revision"
+          cmp release-smoke/a/sbom.spdx.json release-smoke/b/sbom.spdx.json
+
+          python3 scripts/release.py package \
+            --target x86_64-unknown-linux-gnu \
+            --binary target/release/invokrum \
+            --sbom release-smoke/a/sbom.spdx.json \
+            --dist release-smoke/a \
+            --epoch "$epoch"
+          python3 scripts/release.py package \
+            --target x86_64-unknown-linux-gnu \
+            --binary target/release/invokrum \
+            --sbom release-smoke/b/sbom.spdx.json \
+            --dist release-smoke/b \
+            --epoch "$epoch"
+
+          archive_a="$(find release-smoke/a -maxdepth 1 -name 'invokrum-*.tar.gz' -print -quit)"
+          archive_b="$(find release-smoke/b -maxdepth 1 -name 'invokrum-*.tar.gz' -print -quit)"
+          test -n "$archive_a"
+          test -n "$archive_b"
+          cmp "$archive_a" "$archive_b"
+          cmp "$archive_a.sha256" "$archive_b.sha256"
+          (cd "$(dirname "$archive_a")" && sha256sum --check --strict "$(basename "$archive_a").sha256")
+
+          python3 - "$archive_a" release-smoke/a/sbom.spdx.json <<'PY'
+          import json
+          import sys
+          import tarfile
+          from pathlib import Path
+
+          archive = Path(sys.argv[1])
+          sbom = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
+          assert sbom["spdxVersion"] == "SPDX-2.3"
+          assert sbom["dataLicense"] == "CC0-1.0"
+          with tarfile.open(archive, mode="r:gz") as packaged:
+              assert packaged.getnames() == [
+                  "LICENSE",
+                  "README.md",
+                  "SBOM.spdx.json",
+                  "invokrum",
+              ]
+          PY
+
+  portable:
+    name: Portable build (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+          - runner: windows-2025
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Install target
+        run: rustup target add ${{ matrix.target }}
+      - name: Run portable unit tests
+        run: cargo test --workspace --lib --all-features --locked
+      - name: Build release CLI for target
+        run: cargo build -p invokrum-cli --release --target ${{ matrix.target }} --locked

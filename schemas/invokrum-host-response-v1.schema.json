@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hackelia-micrantha.github.io/invokrum/schemas/invokrum-host-response-v1.schema.json",
+  "title": "Invokrum host response v1",
+  "type": "object",
+  "required": ["format", "ok", "request_id"],
+  "properties": {
+    "format": { "const": "invokrum.host/v1" },
+    "ok": { "type": "boolean" },
+    "request_id": { "type": ["string", "null"], "maxLength": 128 },
+    "operation": { "enum": ["capabilities", "resolve", "verify"] },
+    "result": { "type": "object" },
+    "error": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "enum": ["request", "input", "validation", "composition", "integrity", "internal"]
+        },
+        "message": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "ok": { "const": true } } },
+      "then": {
+        "required": ["operation", "result"],
+        "not": { "required": ["error"] }
+      }
+    },
+    {
+      "if": { "properties": { "ok": { "const": false } } },
+      "then": {
+        "required": ["error"],
+        "not": {
+          "anyOf": [
+            { "required": ["operation"] },
+            { "required": ["result"] }
+          ]
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

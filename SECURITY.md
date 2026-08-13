@@ -20,8 +20,8 @@ Never include live credentials, access tokens, private signing keys, or third-pa
 
 This repository is the public community distribution. Private canonical development history is not a reporting channel and should not be copied into a public report.
 
-After the initial implementation baseline is imported, the public threat model and supported-version policy in this repository define the security claims available to community users. Security claims must map to controls and tests present in the community checkout; private-only controls must not be represented as community guarantees.
+The [public threat model](docs/security/threat-model.md) and supported-version policy in this repository define the security claims available to community users. Security claims must map to controls and tests present in the community checkout; private-only controls must not be represented as community guarantees.
 
 ## Supported versions
 
-Until the baseline import is complete, this repository contains split scaffolding only and has no independently released implementation version. After cutover, the default branch and explicitly supported public releases receive best-effort security fixes unless an advisory states otherwise.
+The default branch and explicitly supported public releases receive best-effort security fixes unless an advisory states otherwise.

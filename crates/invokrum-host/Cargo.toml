@@ -1,0 +1,15 @@
+[package]
+name = "invokrum-host"
+description = "Read-only host integration facade for Invokrum composition and evidence"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+invokrum-core = { version = "0.1.0", path = "../invokrum-core" }
+invokrum-integrity = { version = "0.1.0", path = "../invokrum-integrity" }
+
+[lints]
+workspace = true

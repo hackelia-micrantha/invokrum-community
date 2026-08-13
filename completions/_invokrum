@@ -1,0 +1,54 @@
+#compdef invokrum
+
+_invokrum() {
+  local -a commands
+  commands=(
+    'validate:validate a pack and optional profile'
+    'compose:compose exact normalized context bytes'
+    'inspect:inspect the resolved manifest'
+    'lock:create canonical lock bytes'
+    'verify:verify current repository state against a lock'
+    'diff:compare two canonical locks'
+    'install:install a verified local bundle'
+    'help:show usage'
+    'version:show version'
+  )
+
+  if (( CURRENT == 2 )); then
+    _describe 'command' commands
+    return
+  fi
+
+  case "$words[2]" in
+    validate)
+      _arguments '--pack[pack document]:file:_files' '--profile[profile identifier]:id:' '--format[output format]:(human json)' '--no-color' '--help'
+      ;;
+    compose|lock)
+      _arguments '--pack[pack document]:file:_files' '--profile[profile identifier]:id:' '--output[output file]:file:_files' '--force' '--no-color' '--help'
+      ;;
+    inspect)
+      _arguments '--pack[pack document]:file:_files' '--profile[profile identifier]:id:' '--format[output format]:(human json)' '--no-color' '--help'
+      ;;
+    verify)
+      _arguments '--lock[canonical lock]:file:_files' '--pack[pack document]:file:_files' '--profile[profile identifier]:id:' '--format[output format]:(human json)' '--no-color' '--help'
+      ;;
+    diff)
+      _arguments '1:baseline lock:_files' '2:candidate lock:_files' '--format[output format]:(human json)' '--no-color' '--help'
+      ;;
+    install)
+      _arguments \
+        '1:local candidate:_files' \
+        '--bundle-manifest[canonical bundle manifest]:file:_files' \
+        '--subject[immutable sha256 bundle subject]:digest:' \
+        '--candidate-format[candidate source format]:(directory ustar)' \
+        '--store[installation store root]:directory:_directories' \
+        '--format[output format]:(human json)' \
+        '--publisher-public-key[raw Ed25519 public key]:file:_files' \
+        '--publisher-signature[raw Ed25519 signature]:file:_files' \
+        '--trusted-key-sha256[explicit trusted key fingerprint]:digest:' \
+        '--no-color' '--help'
+      ;;
+  esac
+}
+
+_invokrum "$@"

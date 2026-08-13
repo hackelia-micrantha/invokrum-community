@@ -1,0 +1,15 @@
+[package]
+name = "invokrum-verifier-ed25519"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ed25519-dalek = { version = "3.0.0", default-features = false }
+invokrum-digest = { version = "0.1.0", path = "../invokrum-digest" }
+invokrum-distribution = { version = "0.1.0", path = "../invokrum-distribution" }
+
+[lints]
+workspace = true
