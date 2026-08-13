@@ -1,0 +1,212 @@
+name: Create Release Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_source:
+        description: How to select the release version
+        required: true
+        default: workspace
+        type: choice
+        options:
+          - workspace
+          - patch
+          - minor
+          - major
+          - explicit
+      explicit_version:
+        description: Explicit SemVer without the v prefix; required for explicit mode
+        required: false
+        type: string
+      target:
+        description: Commit or branch to tag; must resolve to current main
+        required: true
+        default: main
+        type: string
+      confirmation:
+        description: Type CREATE TAG
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: create-release-tag
+  cancel-in-progress: false
+
+jobs:
+  create-tag:
+    name: Validate and create immutable release tag
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out complete repository history without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve and validate release tag
+        id: release
+        env:
+          VERSION_SOURCE: ${{ inputs.version_source }}
+          EXPLICIT_VERSION: ${{ inputs.explicit_version }}
+          TARGET: ${{ inputs.target }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "$CONFIRMATION" != "CREATE TAG" ]; then
+            echo "confirmation must be exactly CREATE TAG" >&2
+            exit 1
+          fi
+
+          git fetch --force --prune --tags origin main
+          main_sha="$(git rev-parse origin/main^{commit})"
+          target_sha="$(git rev-parse "$TARGET^{commit}")"
+
+          if [ "$target_sha" != "$main_sha" ]; then
+            echo "target must resolve to current origin/main" >&2
+            echo "target: $target_sha" >&2
+            echo "main:   $main_sha" >&2
+            exit 1
+          fi
+
+          workspace_version="$(python3 - <<'PY'
+          import tomllib
+          with open('Cargo.toml', 'rb') as handle:
+              print(tomllib.load(handle)['workspace']['package']['version'])
+          PY
+          )"
+
+          selected_version="$(python3 - "$VERSION_SOURCE" "$EXPLICIT_VERSION" "$workspace_version" <<'PY'
+          import re
+          import subprocess
+          import sys
+
+          source, explicit, workspace = sys.argv[1:]
+          semver = re.compile(r'^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-([0-9A-Za-z.-]+))?$')
+
+          def parse_stable(version: str) -> tuple[int, int, int]:
+              match = semver.fullmatch(version)
+              if match is None or match.group(4) is not None:
+                  raise ValueError(f'not a stable semantic version: {version}')
+              return tuple(int(match.group(index)) for index in (1, 2, 3))
+
+          if source == 'workspace':
+              selected = workspace
+          elif source == 'explicit':
+              if not explicit:
+                  raise SystemExit('explicit_version is required for explicit mode')
+              selected = explicit
+          else:
+              tags = subprocess.run(
+                  ['git', 'tag', '--list', 'v*'],
+                  check=True,
+                  capture_output=True,
+                  text=True,
+              ).stdout.splitlines()
+              stable_versions = []
+              for tag in tags:
+                  candidate = tag[1:] if tag.startswith('v') else ''
+                  try:
+                      stable_versions.append(parse_stable(candidate))
+                  except ValueError:
+                      continue
+              if not stable_versions:
+                  raise SystemExit(f'{source} mode requires at least one existing stable vMAJOR.MINOR.PATCH tag')
+              major, minor, patch = max(stable_versions)
+              if source == 'patch':
+                  patch += 1
+              elif source == 'minor':
+                  minor += 1
+                  patch = 0
+              elif source == 'major':
+                  major += 1
+                  minor = 0
+                  patch = 0
+              else:
+                  raise SystemExit(f'unsupported version source: {source}')
+              selected = f'{major}.{minor}.{patch}'
+
+          if semver.fullmatch(selected) is None:
+              raise SystemExit(f'selected version is not valid SemVer: {selected}')
+          print(selected)
+          PY
+          )"
+
+          if [ "$selected_version" != "$workspace_version" ]; then
+            echo "selected version $selected_version does not match reviewed workspace version $workspace_version" >&2
+            echo "update Cargo.toml and release notes through a pull request before creating the tag" >&2
+            exit 1
+          fi
+
+          tag="v$selected_version"
+          python3 scripts/release.py validate-tag --tag "$tag"
+
+          if git show-ref --verify --quiet "refs/tags/$tag"; then
+            echo "tag already exists: $tag" >&2
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "remote tag already exists: $tag" >&2
+            exit 1
+          fi
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "target_sha=$target_sha" >> "$GITHUB_OUTPUT"
+          echo "Creating immutable annotated tag $tag at $target_sha"
+
+      - name: Create annotated tag object
+        id: tag_object
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          TARGET_SHA: ${{ steps.release.outputs.target_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_object_sha="$(
+            gh api \
+              --method POST \
+              "repos/$GITHUB_REPOSITORY/git/tags" \
+              -f tag="$TAG" \
+              -f message="Invokrum $TAG" \
+              -f object="$TARGET_SHA" \
+              -f type=commit \
+              --jq .sha
+          )"
+          echo "sha=$tag_object_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Publish immutable tag reference
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          TAG_OBJECT_SHA: ${{ steps.tag_object.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api \
+            --method POST \
+            "repos/$GITHUB_REPOSITORY/git/refs" \
+            -f ref="refs/tags/$TAG" \
+            -f sha="$TAG_OBJECT_SHA"
+
+      - name: Dispatch release workflow at immutable tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run release.yml --ref "$TAG"
+
+      - name: Report release trigger
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+          TARGET_SHA: ${{ steps.release.outputs.target_sha }}
+        run: |
+          echo "Created $TAG at $TARGET_SHA and dispatched the Release workflow at the immutable tag."
