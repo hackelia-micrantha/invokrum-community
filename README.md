@@ -8,7 +8,7 @@ This repository is the public distribution and contribution surface for Invokrum
 
 The canonical development repository is maintained separately. Public implementation changes are promoted here deliberately through reviewed, allowlisted changes rather than by mirroring private repository history.
 
-The initial code baseline will be imported from the final public `hackelia-micrantha/invokrum` commit immediately before that canonical repository changes visibility. The import will record the exact upstream commit and account for repository-relocation-only differences.
+The initial code baseline was imported from the final selected public `hackelia-micrantha/invokrum` source snapshot before that canonical repository changes visibility. `UPSTREAM.md` records the exact source commit and accounts for repository-relocation-only differences.
 
 ## Current status
 
