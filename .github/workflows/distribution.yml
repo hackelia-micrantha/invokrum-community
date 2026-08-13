@@ -10,9 +10,11 @@ on:
       - "crates/invokrum-acquisition-linux/**"
       - "crates/invokrum-acquisition-archive/**"
       - "crates/invokrum-install/**"
+      - "crates/invokrum-install-delivery/**"
       - "crates/invokrum-install-linux/**"
       - "schemas/invokrum-pack-bundle-v1.schema.json"
       - "tests/fixtures/bundle/**"
+      - "tests/test_distribution_workflow_contract.py"
       - "docs/bundle-format-v1.md"
       - "docs/architecture/bundle-distribution-boundary.md"
       - "docs/security/bundle-manifest-security.md"
@@ -31,9 +33,11 @@ on:
       - "crates/invokrum-acquisition-linux/**"
       - "crates/invokrum-acquisition-archive/**"
       - "crates/invokrum-install/**"
+      - "crates/invokrum-install-delivery/**"
       - "crates/invokrum-install-linux/**"
       - "schemas/invokrum-pack-bundle-v1.schema.json"
       - "tests/fixtures/bundle/**"
+      - "tests/test_distribution_workflow_contract.py"
       - "docs/bundle-format-v1.md"
       - "docs/architecture/bundle-distribution-boundary.md"
       - "docs/security/bundle-manifest-security.md"
@@ -71,6 +75,8 @@ jobs:
         run: cargo test -p invokrum-acquisition-archive --all-targets --all-features --locked
       - name: Test installation orchestration
         run: cargo test -p invokrum-install --all-targets --all-features --locked
+      - name: Test explicit install delivery adapter
+        run: cargo test -p invokrum-install-delivery --all-targets --all-features --locked
       - name: Test Linux content-addressed installation
         run: cargo test -p invokrum-install-linux --all-targets --all-features --locked
       - name: Test composition integrity compatibility wrapper
