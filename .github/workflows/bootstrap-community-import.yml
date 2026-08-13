@@ -36,7 +36,8 @@ jobs:
           test "$GITHUB_REPOSITORY" = "hackelia-micrantha/invokrum-community"
 
           source_dir="$(mktemp -d)"
-          trap 'rm -rf "$source_dir"' EXIT
+          workflow_dir="$(mktemp -d)"
+          trap 'rm -rf "$source_dir" "$workflow_dir"' EXIT
 
           git -C "$source_dir" init
           git -C "$source_dir" remote add origin "https://github.com/${SOURCE_REPOSITORY}.git"
@@ -46,12 +47,22 @@ jobs:
 
           git checkout -B "$TARGET_BRANCH" origin/main
 
+          # GitHub workflow tokens cannot create/update workflow files. Preserve the
+          # target branch's current workflow directory byte-for-byte during this push;
+          # the reviewed source workflows are installed on the generated branch via
+          # the target repository API before the baseline PR is opened.
+          cp -a .github/workflows "$workflow_dir/workflows"
+
           # Preserve the community-specific repository shell. Everything copied below
           # is an explicit bootstrap allowlist from the frozen public source snapshot.
-          for tree in .github assets completions crates docs examples schemas scripts tests; do
+          for tree in assets completions crates docs examples schemas scripts tests; do
             rm -rf "$tree"
             cp -a "$source_dir/$tree" "$tree"
           done
+          rm -rf .github
+          cp -a "$source_dir/.github" .github
+          rm -rf .github/workflows
+          cp -a "$workflow_dir/workflows" .github/workflows
 
           for file in \
             .gitignore \
@@ -200,12 +211,8 @@ jobs:
           - canonical-only \`community-export-policy.toml\` is omitted;
           - the public topology document remains unchanged because references to the canonical repository there describe provenance and promotion direction rather than a public download/source endpoint.
 
-          All imported implementation, schema, example, fixture, and ordinary documentation bytes are otherwise sourced from the commit above. Future promotions must record their canonical source commit or range without copying private Git history.
+          All imported implementation, schema, example, fixture, ordinary documentation, and final workflow bytes are otherwise sourced from the commit above. Future promotions must record their canonical source commit or range without copying private Git history.
           EOF
-
-          # The bootstrap workflow is a one-shot transport mechanism, not part of the
-          # public product surface. Its deletion is part of the generated baseline diff.
-          rm -f .github/workflows/bootstrap-community-import.yml
 
           test ! -e community-export-policy.toml
           test -f crates/invokrum-install-delivery/Cargo.toml
