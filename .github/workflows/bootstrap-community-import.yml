@@ -33,8 +33,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
-          test "$(git remote get-url origin)" = "https://github.com/${GITHUB_REPOSITORY}" || true
+          test "$GITHUB_REPOSITORY" = "hackelia-micrantha/invokrum-community"
 
           source_dir="$(mktemp -d)"
           trap 'rm -rf "$source_dir"' EXIT
@@ -72,24 +71,45 @@ jobs:
           # Canonical-only promotion policy never belongs in the community snapshot.
           rm -f community-export-policy.toml
 
-          # Repository-relocation transformations are deliberately limited to files
-          # where a public source/release URL must resolve to this community repository.
+          # Repository-relocation transformations are deliberately limited to exact
+          # public source/release endpoints that must resolve to this repository.
           python3 - <<'PY'
           from pathlib import Path
 
-          old = "https://github.com/hackelia-micrantha/invokrum"
-          new = "https://github.com/hackelia-micrantha/invokrum-community"
-          for relative in (
-              "Cargo.toml",
-              "scripts/release.py",
-              "docs/release.md",
-              "docs/releases/v0.1.0.md",
-          ):
+          transforms = {
+              "Cargo.toml": [
+                  (
+                      'repository = "https://github.com/hackelia-micrantha/invokrum"',
+                      'repository = "https://github.com/hackelia-micrantha/invokrum-community"',
+                  ),
+              ],
+              "scripts/release.py": [
+                  (
+                      "https://github.com/hackelia-micrantha/invokrum/sbom/",
+                      "https://github.com/hackelia-micrantha/invokrum-community/sbom/",
+                  ),
+              ],
+              "docs/release.md": [
+                  (
+                      "--repo hackelia-micrantha/invokrum",
+                      "--repo hackelia-micrantha/invokrum-community",
+                  ),
+              ],
+              "docs/releases/v0.1.0.md": [
+                  (
+                      "--repo hackelia-micrantha/invokrum",
+                      "--repo hackelia-micrantha/invokrum-community",
+                  ),
+              ],
+          }
+          for relative, replacements in transforms.items():
               path = Path(relative)
               text = path.read_text(encoding="utf-8")
-              if old not in text:
-                  raise SystemExit(f"expected canonical repository URL in {relative}")
-              path.write_text(text.replace(old, new), encoding="utf-8")
+              for old, new in replacements:
+                  if old not in text:
+                      raise SystemExit(f"expected relocation token in {relative}: {old}")
+                  text = text.replace(old, new)
+              path.write_text(text, encoding="utf-8")
 
           readme = Path("README.md")
           text = readme.read_text(encoding="utf-8")
@@ -149,6 +169,8 @@ jobs:
           test -f crates/invokrum-install-delivery/Cargo.toml
           grep -Fq 'repository = "https://github.com/hackelia-micrantha/invokrum-community"' Cargo.toml
           grep -Fq 'https://github.com/hackelia-micrantha/invokrum-community/sbom/' scripts/release.py
+          grep -Fq -- '--repo hackelia-micrantha/invokrum-community' docs/release.md
+          grep -Fq -- '--repo hackelia-micrantha/invokrum-community' docs/releases/v0.1.0.md
           grep -Fq "$SOURCE_COMMIT" UPSTREAM.md
 
           cargo fmt --all --check
