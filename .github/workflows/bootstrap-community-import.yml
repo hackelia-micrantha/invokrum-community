@@ -130,7 +130,49 @@ jobs:
           )
           if old_status not in text:
               raise SystemExit("community README status block changed unexpectedly")
-          readme.write_text(text.replace(old_status, new_status), encoding="utf-8")
+          text = text.replace(old_status, new_status)
+          design_heading = "## Design expectations\n\n"
+          threat_note = (
+              "The public security claims and residual risks are defined by the "
+              "[threat model](docs/security/threat-model.md) and must remain backed by "
+              "controls and tests available in this repository.\n\n"
+          )
+          if design_heading not in text:
+              raise SystemExit("community README design heading changed unexpectedly")
+          text = text.replace(design_heading, design_heading + threat_note, 1)
+          readme.write_text(text, encoding="utf-8")
+
+          security = Path("SECURITY.md")
+          text = security.read_text(encoding="utf-8")
+          old_boundary = (
+              "After the initial implementation baseline is imported, the public threat model "
+              "and supported-version policy in this repository define the security claims "
+              "available to community users. Security claims must map to controls and tests "
+              "present in the community checkout; private-only controls must not be represented "
+              "as community guarantees."
+          )
+          new_boundary = (
+              "The [public threat model](docs/security/threat-model.md) and supported-version "
+              "policy in this repository define the security claims available to community "
+              "users. Security claims must map to controls and tests present in the community "
+              "checkout; private-only controls must not be represented as community guarantees."
+          )
+          if old_boundary not in text:
+              raise SystemExit("community SECURITY boundary block changed unexpectedly")
+          text = text.replace(old_boundary, new_boundary)
+          old_versions = (
+              "Until the baseline import is complete, this repository contains split scaffolding "
+              "only and has no independently released implementation version. After cutover, the "
+              "default branch and explicitly supported public releases receive best-effort security "
+              "fixes unless an advisory states otherwise."
+          )
+          new_versions = (
+              "The default branch and explicitly supported public releases receive best-effort "
+              "security fixes unless an advisory states otherwise."
+          )
+          if old_versions not in text:
+              raise SystemExit("community SECURITY supported-version block changed unexpectedly")
+          security.write_text(text.replace(old_versions, new_versions), encoding="utf-8")
           PY
 
           cutover_timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -152,7 +194,7 @@ jobs:
 
           The initial community tree intentionally differs from the selected source snapshot only in repository-boundary material:
 
-          - community-specific \`README.md\`, \`CONTRIBUTING.md\`, and \`SECURITY.md\` are retained;
+          - community-specific \`README.md\`, \`CONTRIBUTING.md\`, and \`SECURITY.md\` are retained; README/SECURITY cutover status is finalized and both link the imported public threat model required by the public security contract;
           - this \`UPSTREAM.md\` records source provenance and the cutover timestamp;
           - \`Cargo.toml\`, \`scripts/release.py\`, \`docs/release.md\`, and \`docs/releases/v0.1.0.md\` point public source/release metadata at \`hackelia-micrantha/invokrum-community\`;
           - canonical-only \`community-export-policy.toml\` is omitted;
@@ -171,6 +213,8 @@ jobs:
           grep -Fq 'https://github.com/hackelia-micrantha/invokrum-community/sbom/' scripts/release.py
           grep -Fq -- '--repo hackelia-micrantha/invokrum-community' docs/release.md
           grep -Fq -- '--repo hackelia-micrantha/invokrum-community' docs/releases/v0.1.0.md
+          grep -Fq 'docs/security/threat-model.md' README.md
+          grep -Fq 'docs/security/threat-model.md' SECURITY.md
           grep -Fq "$SOURCE_COMMIT" UPSTREAM.md
 
           cargo fmt --all --check
