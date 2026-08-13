@@ -1,0 +1,169 @@
+name: Bootstrap community baseline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/bootstrap-community-import.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bootstrap-community-baseline
+  cancel-in-progress: false
+
+env:
+  SOURCE_REPOSITORY: hackelia-micrantha/invokrum
+  SOURCE_COMMIT: 0e6083d0608d22673b7172ce3330328c64be05bc
+  TARGET_BRANCH: cutover/baseline-0e6083d
+
+jobs:
+  import:
+    if: github.repository == 'hackelia-micrantha/invokrum-community'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out community repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Materialize frozen public source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test "$(git remote get-url origin)" = "https://github.com/${GITHUB_REPOSITORY}" || true
+
+          source_dir="$(mktemp -d)"
+          trap 'rm -rf "$source_dir"' EXIT
+
+          git -C "$source_dir" init
+          git -C "$source_dir" remote add origin "https://github.com/${SOURCE_REPOSITORY}.git"
+          git -C "$source_dir" fetch --depth=1 origin "$SOURCE_COMMIT"
+          git -C "$source_dir" checkout --detach FETCH_HEAD
+          test "$(git -C "$source_dir" rev-parse HEAD)" = "$SOURCE_COMMIT"
+
+          git checkout -B "$TARGET_BRANCH" origin/main
+
+          # Preserve the community-specific repository shell. Everything copied below
+          # is an explicit bootstrap allowlist from the frozen public source snapshot.
+          for tree in .github assets completions crates docs examples schemas scripts tests; do
+            rm -rf "$tree"
+            cp -a "$source_dir/$tree" "$tree"
+          done
+
+          for file in \
+            .gitignore \
+            CHANGELOG.md \
+            CODE_OF_CONDUCT.md \
+            Cargo.lock \
+            Cargo.toml \
+            GOVERNANCE.md \
+            LICENSE \
+            RELEASE_NOTES_v0.1.0.md \
+            SUPPORT.md \
+            deny.toml \
+            rust-toolchain.toml; do
+            cp -a "$source_dir/$file" "$file"
+          done
+
+          # Canonical-only promotion policy never belongs in the community snapshot.
+          rm -f community-export-policy.toml
+
+          # Repository-relocation transformations are deliberately limited to files
+          # where a public source/release URL must resolve to this community repository.
+          python3 - <<'PY'
+          from pathlib import Path
+
+          old = "https://github.com/hackelia-micrantha/invokrum"
+          new = "https://github.com/hackelia-micrantha/invokrum-community"
+          for relative in (
+              "Cargo.toml",
+              "scripts/release.py",
+              "docs/release.md",
+              "docs/releases/v0.1.0.md",
+          ):
+              path = Path(relative)
+              text = path.read_text(encoding="utf-8")
+              if old not in text:
+                  raise SystemExit(f"expected canonical repository URL in {relative}")
+              path.write_text(text.replace(old, new), encoding="utf-8")
+
+          readme = Path("README.md")
+          text = readme.read_text(encoding="utf-8")
+          old_status = (
+              "Repository split preparation is in progress. Until the baseline import lands, "
+              "this repository contains only the public repository scaffolding and license.\n\n"
+              "After cutover, this repository is expected to contain the supported public "
+              "Invokrum source, schemas, examples, compatibility fixtures, documentation, CI, "
+              "and releases that can be built and evaluated without access to the private "
+              "canonical repository."
+          )
+          new_status = (
+              "The initial public implementation baseline is imported from canonical source "
+              "snapshot `0e6083d0608d22673b7172ce3330328c64be05bc`. This repository now "
+              "contains the supported public Invokrum source, schemas, examples, compatibility "
+              "fixtures, documentation, CI, and release tooling needed to build and evaluate "
+              "the community distribution independently."
+          )
+          if old_status not in text:
+              raise SystemExit("community README status block changed unexpectedly")
+          readme.write_text(text.replace(old_status, new_status), encoding="utf-8")
+          PY
+
+          cutover_timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          cat > UPSTREAM.md <<EOF
+          # Upstream provenance
+
+          This repository is the public community distribution of Invokrum. Shared implementation originates in the separately maintained canonical repository and is promoted here through reviewed, allowlisted snapshots rather than private-history mirroring.
+
+          ## Initial public baseline
+
+          - Source repository: \`${SOURCE_REPOSITORY}\`
+          - Source commit: \`${SOURCE_COMMIT}\`
+          - Cutover timestamp (UTC): \`${cutover_timestamp}\`
+          - License at source commit: Apache-2.0
+
+          The source commit was publicly accessible before the canonical repository visibility change.
+
+          ## Accounted baseline differences
+
+          The initial community tree intentionally differs from the selected source snapshot only in repository-boundary material:
+
+          - community-specific \`README.md\`, \`CONTRIBUTING.md\`, and \`SECURITY.md\` are retained;
+          - this \`UPSTREAM.md\` records source provenance and the cutover timestamp;
+          - \`Cargo.toml\`, \`scripts/release.py\`, \`docs/release.md\`, and \`docs/releases/v0.1.0.md\` point public source/release metadata at \`hackelia-micrantha/invokrum-community\`;
+          - canonical-only \`community-export-policy.toml\` is omitted;
+          - the public topology document remains unchanged because references to the canonical repository there describe provenance and promotion direction rather than a public download/source endpoint.
+
+          All imported implementation, schema, example, fixture, and ordinary documentation bytes are otherwise sourced from the commit above. Future promotions must record their canonical source commit or range without copying private Git history.
+          EOF
+
+          # The bootstrap workflow is a one-shot transport mechanism, not part of the
+          # public product surface. Its deletion is part of the generated baseline diff.
+          rm -f .github/workflows/bootstrap-community-import.yml
+
+          test ! -e community-export-policy.toml
+          test -f crates/invokrum-install-delivery/Cargo.toml
+          grep -Fq 'repository = "https://github.com/hackelia-micrantha/invokrum-community"' Cargo.toml
+          grep -Fq 'https://github.com/hackelia-micrantha/invokrum-community/sbom/' scripts/release.py
+          grep -Fq "$SOURCE_COMMIT" UPSTREAM.md
+
+          cargo fmt --all --check
+          cargo test --workspace --all-features --locked
+          python3 -m unittest discover -s tests -p 'test_*.py'
+          python3 scripts/check_architecture.py
+          python3 scripts/check_workflow_pins.py
+          git diff --check
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && {
+            echo "bootstrap produced no changes" >&2
+            exit 1
+          }
+          git commit -m "chore: import public baseline from invokrum ${SOURCE_COMMIT:0:7}"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
