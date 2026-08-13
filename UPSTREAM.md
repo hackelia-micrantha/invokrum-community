@@ -1,26 +1,24 @@
 # Upstream provenance
 
-`hackelia-micrantha/invokrum-community` is the public distribution of Invokrum. Canonical development is maintained separately.
+This repository is the public community distribution of Invokrum. Shared implementation originates in the separately maintained canonical repository and is promoted here through reviewed, allowlisted snapshots rather than private-history mirroring.
 
-## Initial cutover
+## Initial public baseline
 
-The exact upstream cutover commit is intentionally not selected during split preparation because `invokrum` may continue public development before the visibility change.
+- Source repository: `hackelia-micrantha/invokrum`
+- Source commit: `0e6083d0608d22673b7172ce3330328c64be05bc`
+- Cutover timestamp (UTC): `2026-08-13T06:30:29Z`
+- License at source commit: Apache-2.0
 
-Before the canonical repository becomes private, this file MUST be updated with:
+The source commit was publicly accessible before the canonical repository visibility change.
 
-```text
-cutover_source_repository: hackelia-micrantha/invokrum
-cutover_source_commit: <40-hex commit SHA>
-cutover_timestamp_utc: <RFC3339 timestamp>
-license_at_cutover: Apache-2.0
-```
+## Accounted baseline differences
 
-The baseline-import pull request must also list every repository-relocation transformation made after copying the selected public snapshot. Typical allowed transformations include repository URLs, public README text, issue/security links, and CI/release destinations.
+The initial community tree intentionally differs from the selected source snapshot only in repository-boundary material:
 
-All other differences from the selected public upstream snapshot must be intentional, reviewed, and documented.
+- community-specific `README.md`, `CONTRIBUTING.md`, and `SECURITY.md` are retained; README/SECURITY cutover status is finalized and both link the imported public threat model required by the public security contract;
+- this `UPSTREAM.md` records source provenance and the cutover timestamp;
+- `Cargo.toml`, `scripts/release.py`, `docs/release.md`, and `docs/releases/v0.1.0.md` point public source/release metadata at `hackelia-micrantha/invokrum-community`;
+- canonical-only `community-export-policy.toml` is omitted;
+- the public topology document remains unchanged because references to the canonical repository there describe provenance and promotion direction rather than a public download/source endpoint.
 
-## Later promotions
-
-Each canonical-to-community promotion should record the canonical source commit or commit range in its pull request description or machine-readable provenance metadata.
-
-Future private Git history is not mirrored here. The public repository receives only reviewed public content and the minimum provenance needed to attribute that content to the canonical source state.
+All imported implementation, schema, example, fixture, ordinary documentation, and final workflow bytes are otherwise sourced from the commit above. Future promotions must record their canonical source commit or range without copying private Git history.

@@ -1,0 +1,28 @@
+schema: invokrum.dev/v1
+id: example
+classes:
+  - id: mode
+    order: 20
+    minimum: 1
+    maximum: 1
+  - id: core
+    order: 10
+    minimum: 1
+    maximum: 1
+overlays:
+  - id: read-only
+    class: mode
+    source: overlays/read-only.md
+  - id: core-default
+    class: core
+    source: overlays/core.md
+profiles:
+  - id: review
+    selections:
+      mode:
+        - read-only
+      core:
+        - core-default
+variables:
+  - name: repository
+    sensitivity: public

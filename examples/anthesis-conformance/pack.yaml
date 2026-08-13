@@ -1,0 +1,130 @@
+schema: invokrum.dev/v1
+id: anthesis-reference-conformance
+
+classes:
+  - id: core
+    order: 10
+    minimum: 2
+    maximum: 2
+  - id: governance
+    order: 20
+    minimum: 1
+    maximum: null
+  - id: compliance
+    order: 30
+    minimum: 0
+    maximum: null
+  - id: security
+    order: 40
+    minimum: 0
+    maximum: null
+  - id: operations
+    order: 50
+    minimum: 0
+    maximum: null
+  - id: delivery
+    order: 60
+    minimum: 0
+    maximum: null
+  - id: integration
+    order: 70
+    minimum: 0
+    maximum: null
+  - id: environment
+    order: 80
+    minimum: 1
+    maximum: 1
+  - id: mode
+    order: 90
+    minimum: 1
+    maximum: 1
+  - id: artifact
+    order: 100
+    minimum: 0
+    maximum: null
+  - id: lenses
+    order: 110
+    minimum: 0
+    maximum: null
+  - id: quality
+    order: 120
+    minimum: 0
+    maximum: null
+  - id: cost
+    order: 130
+    minimum: 0
+    maximum: null
+
+overlays:
+  - id: core-budget
+    class: core
+    source: overlays/core-budget.md
+  - id: core-invariant
+    class: core
+    source: overlays/core-invariant.md
+  - id: governance-default
+    class: governance
+    source: overlays/governance-default.md
+  - id: governance-read-only
+    class: governance
+    source: overlays/governance-read-only.md
+    incompatible_with:
+      - mode-implementation
+  - id: environment-ci
+    class: environment
+    source: overlays/environment-ci.md
+  - id: environment-local
+    class: environment
+    source: overlays/environment-local.md
+  - id: mode-implementation
+    class: mode
+    source: overlays/mode-implementation.md
+    incompatible_with:
+      - governance-read-only
+  - id: mode-review
+    class: mode
+    source: overlays/mode-review.md
+  - id: quality-default
+    class: quality
+    source: overlays/quality-default.md
+profiles:
+  - id: audit-ci
+    selections:
+      core:
+        - core-invariant
+        - core-budget
+      governance:
+        - governance-read-only
+      environment:
+        - environment-ci
+      mode:
+        - mode-review
+      quality:
+        - quality-default
+  - id: implementation-local
+    selections:
+      core:
+        - core-invariant
+        - core-budget
+      governance:
+        - governance-default
+      environment:
+        - environment-local
+      mode:
+        - mode-implementation
+      quality:
+        - quality-default
+  - id: invalid-read-only-implementation
+    selections:
+      core:
+        - core-invariant
+        - core-budget
+      governance:
+        - governance-read-only
+      environment:
+        - environment-ci
+      mode:
+        - mode-implementation
+      quality:
+        - quality-default
+variables: []

@@ -1,0 +1,21 @@
+[package]
+name = "invokrum-acquisition-linux"
+description = "Linux filesystem adapters for Invokrum pack acquisition"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+invokrum-acquisition = { version = "0.1.0", path = "../invokrum-acquisition" }
+invokrum-distribution = { version = "0.1.0", path = "../invokrum-distribution" }
+
+[dev-dependencies]
+invokrum-digest = { version = "0.1.0", path = "../invokrum-digest" }
+
+[lints]
+workspace = true

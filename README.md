@@ -12,11 +12,11 @@ The initial code baseline will be imported from the final public `hackelia-micra
 
 ## Current status
 
-Repository split preparation is in progress. Until the baseline import lands, this repository contains only the public repository scaffolding and license.
-
-After cutover, this repository is expected to contain the supported public Invokrum source, schemas, examples, compatibility fixtures, documentation, CI, and releases that can be built and evaluated without access to the private canonical repository.
+The initial public implementation baseline is imported from canonical source snapshot `0e6083d0608d22673b7172ce3330328c64be05bc`. This repository now contains the supported public Invokrum source, schemas, examples, compatibility fixtures, documentation, CI, and release tooling needed to build and evaluate the community distribution independently.
 
 ## Design expectations
+
+The public security claims and residual risks are defined by the [threat model](docs/security/threat-model.md) and must remain backed by controls and tests available in this repository.
 
 The community distribution must remain independently usable:
 

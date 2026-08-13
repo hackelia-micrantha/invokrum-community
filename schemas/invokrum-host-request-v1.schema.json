@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hackelia-micrantha.github.io/invokrum/schemas/invokrum-host-request-v1.schema.json",
+  "title": "Invokrum host request v1",
+  "type": "object",
+  "required": ["protocol", "request_id", "operation"],
+  "properties": {
+    "protocol": { "const": "invokrum.host/v1" },
+    "request_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "operation": { "enum": ["capabilities", "resolve", "verify"] },
+    "pack": { "type": "string", "minLength": 1 },
+    "profile": { "type": "string", "minLength": 1 },
+    "expected_lock_base64": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "operation": { "const": "capabilities" } } },
+      "then": {
+        "not": {
+          "anyOf": [
+            { "required": ["pack"] },
+            { "required": ["profile"] },
+            { "required": ["expected_lock_base64"] }
+          ]
+        }
+      }
+    },
+    {
+      "if": { "properties": { "operation": { "const": "resolve" } } },
+      "then": {
+        "required": ["pack", "profile"],
+        "not": { "required": ["expected_lock_base64"] }
+      }
+    },
+    {
+      "if": { "properties": { "operation": { "const": "verify" } } },
+      "then": { "required": ["pack", "profile", "expected_lock_base64"] }
+    }
+  ],
+  "additionalProperties": false
+}

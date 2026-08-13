@@ -1,0 +1,17 @@
+[package]
+name = "invokrum-fs"
+description = "Fail-closed local filesystem adapter for Invokrum overlay sources"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+invokrum-core = { version = "0.1.0", path = "../invokrum-core" }
+
+[lints]
+workspace = true

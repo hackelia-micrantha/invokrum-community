@@ -1,0 +1,1 @@
+{"format":"invokrum.pack-bundle/v1","digest_algorithm":"sha256","entry_point":"pack.yaml","files":[{"path":"overlays/core.md","byte_length":12,"digest":"1111111111111111111111111111111111111111111111111111111111111111"},{"path":"pack.yaml","byte_length":42,"digest":"0000000000000000000000000000000000000000000000000000000000000000"}]}

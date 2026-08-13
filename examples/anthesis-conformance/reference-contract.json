@@ -1,0 +1,29 @@
+{
+  "anthesis_revision": "116ad125f790fdfc592f186b546ac0dad4ffe148",
+  "sources": [
+    "prompts/overlays/manifest.md",
+    "tooling/cli/commands/session.py"
+  ],
+  "class_order": [
+    "core",
+    "governance",
+    "compliance",
+    "security",
+    "operations",
+    "delivery",
+    "integration",
+    "environment",
+    "mode",
+    "artifact",
+    "lenses",
+    "quality",
+    "cost"
+  ],
+  "fixture_cardinality": {
+    "environment": { "minimum": 1, "maximum": 1 },
+    "mode": { "minimum": 1, "maximum": 1 }
+  },
+  "fixture_incompatibilities": [
+    ["governance-read-only", "mode-implementation"]
+  ]
+}

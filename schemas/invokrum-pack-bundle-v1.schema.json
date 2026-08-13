@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://invokrum.dev/schemas/invokrum-pack-bundle-v1.schema.json",
+  "title": "Invokrum pack bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "digest_algorithm", "entry_point", "files"],
+  "properties": {
+    "format": { "const": "invokrum.pack-bundle/v1" },
+    "digest_algorithm": { "const": "sha256" },
+    "entry_point": { "$ref": "#/$defs/path" },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "items": { "$ref": "#/$defs/file" }
+    }
+  },
+  "$defs": {
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^(?=[ -~]+$)(?!/)(?!.*//)(?!.*\\\\)(?!.*:)(?!.*(?:^|/)\\.{1,2}(?:/|$)).*[^/]$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "byte_length", "digest"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "byte_length": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576
+        },
+        "digest": { "$ref": "#/$defs/digest" }
+      }
+    }
+  }
+}

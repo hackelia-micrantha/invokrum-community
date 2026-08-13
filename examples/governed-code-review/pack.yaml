@@ -1,0 +1,59 @@
+schema: invokrum.dev/v1
+id: governed-code-review
+
+classes:
+  - id: core
+    order: 10
+    minimum: 1
+    maximum: 1
+  - id: mode
+    order: 20
+    minimum: 1
+    maximum: 1
+  - id: concern
+    order: 30
+    minimum: 0
+    maximum: 2
+
+overlays:
+  - id: core-governance
+    class: core
+    source: overlays/core-governance.md
+  - id: implementation
+    class: mode
+    source: overlays/implementation.md
+    incompatible_with:
+      - read-only
+  - id: quality
+    class: concern
+    source: overlays/quality.md
+  - id: read-only
+    class: concern
+    source: overlays/read-only.md
+    incompatible_with:
+      - implementation
+  - id: review
+    class: mode
+    source: overlays/review.md
+  - id: security
+    class: concern
+    source: overlays/security.md
+profiles:
+  - id: governed-review
+    selections:
+      core:
+        - core-governance
+      mode:
+        - review
+      concern:
+        - security
+        - quality
+  - id: invalid-read-only-implementation
+    selections:
+      core:
+        - core-governance
+      mode:
+        - implementation
+      concern:
+        - read-only
+variables: []

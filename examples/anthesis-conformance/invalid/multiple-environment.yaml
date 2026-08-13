@@ -1,0 +1,35 @@
+schema: invokrum.dev/v1
+id: anthesis-invalid-multiple-environment
+classes:
+  - id: core
+    order: 10
+    minimum: 1
+    maximum: 1
+  - id: environment
+    order: 80
+    minimum: 1
+    maximum: 1
+  - id: mode
+    order: 90
+    minimum: 1
+    maximum: 1
+overlays:
+  - id: core
+    class: core
+    source: core.md
+  - id: ci
+    class: environment
+    source: ci.md
+  - id: local
+    class: environment
+    source: local.md
+  - id: review
+    class: mode
+    source: review.md
+profiles:
+  - id: invalid
+    selections:
+      core: [core]
+      environment: [ci, local]
+      mode: [review]
+variables: []
