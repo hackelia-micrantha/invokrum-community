@@ -1,8 +1,8 @@
 # Invokrum documentation
 
-Invokrum v0.1.0 is published with deterministic local composition, strict pack parsing, canonical lock verification, a read-only host/RPC contract, an independent subprocess reference host, and gated cross-platform release artifacts.
+Invokrum v0.1.0 established deterministic local composition, strict pack parsing, canonical lock verification, a read-only host/RPC contract, an independent subprocess reference host, and gated cross-platform release artifacts.
 
-Post-v0.1 distribution work now implements canonical `invokrum.pack-bundle/v1` identity, provider-neutral host trust-policy contracts, bounded Linux directory and POSIX ustar candidate acquisition, exact expected-subject/content verification, strict `ed25519-subject-v1` publisher verification, host-owned authorization, Linux quarantine/content-addressed installation, and versioned authenticated installation evidence. Remote/network acquisition, registry discovery, freshness/revocation/transparency, and rollback-selection policy remain planned. The explicit public install API/CLI delivery surface is the next layer tracked in #64.
+The current v0.2 line additionally implements canonical `invokrum.pack-bundle/v1` identity, provider-neutral host trust-policy contracts, bounded Linux directory and POSIX ustar candidate acquisition, exact expected-subject/content verification, strict `ed25519-subject-v1` publisher verification, host-owned authorization, Linux quarantine/content-addressed installation, versioned authenticated installation evidence, and the explicit local install API/CLI surface. Remote/network acquisition, registry discovery, freshness/revocation/transparency, rollback-selection policy, and non-Linux secure acquisition/install adapters remain planned.
 
 Documentation distinguishes between **accepted design**, **planned interfaces**, and **implemented behavior** so examples do not imply unsupported functionality. Publisher authentication is implemented for the supported local directory/archive path; it remains an acquisition/install claim and does not become part of ordinary deterministic composition.
 
@@ -29,6 +29,7 @@ Documentation distinguishes between **accepted design**, **planned interfaces**,
 - [Anthesis reference-consumer conformance](../examples/anthesis-conformance/README.md)
 - [Visual identity and reusable assets](branding.md)
 - [Release and artifact verification](release.md)
+- [v0.2.0 release notes](releases/v0.2.0.md)
 - [Development guide](development.md)
 - [Roadmap](roadmap.md)
 
