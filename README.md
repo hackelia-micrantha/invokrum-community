@@ -12,7 +12,9 @@ The initial code baseline was imported from the final selected public `hackelia-
 
 ## Current status
 
-The initial public implementation baseline is imported from canonical source snapshot `0e6083d0608d22673b7172ce3330328c64be05bc`. This repository now contains the supported public Invokrum source, schemas, examples, compatibility fixtures, documentation, CI, and release tooling needed to build and evaluate the community distribution independently.
+The initial public implementation baseline is imported from canonical source snapshot `0e6083d0608d22673b7172ce3330328c64be05bc`. This repository contains the supported public Invokrum source, schemas, examples, compatibility fixtures, documentation, CI, and release tooling needed to build and evaluate the community distribution independently.
+
+The historical canonical `v0.1.0` release remains bound to its original earlier source commit. The imported community baseline includes later distribution, acquisition, authenticated-installation, and publisher-verification work and is therefore being prepared as `v0.2.0` rather than relabeled as `v0.1.0`.
 
 ## Design expectations
 
@@ -30,7 +32,7 @@ The community distribution must remain independently usable:
 
 Invokrum Community is distributed under the Apache License 2.0. See [LICENSE](LICENSE).
 
-The initial implementation baseline was already publicly released under Apache-2.0 before the repository split; the cutover process preserves that license and attribution continuity.
+The imported source was publicly available under Apache-2.0 before the repository split; the cutover process preserves that license and attribution continuity without reusing the historical `v0.1.0` release identity.
 
 ## Contributing
 
