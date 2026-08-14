@@ -37,3 +37,35 @@ All imported implementation, schema, example, fixture, ordinary documentation, a
 - Target-only provenance path: `UPSTREAM.md`
 
 Before publication, this promotion was dry-run against community `main` at `6ad70bdba482eb72660c899b3e219733c9a61adc`. The dry run selected these exact paths, classified the workflow as an explicit mixed-governance export, rejected unknown-path broadening, produced only the expected source-file diff, and re-read community `main` unchanged afterward. No private Git history is copied by this promotion.
+
+### 2026-08-14 — v0.2.0 release metadata and compatibility versioning
+
+- Canonical source repository: `hackelia-micrantha/invokrum`
+- Canonical source commit: `69239c9b955d0e65ba2d3e81008595a083864ae7`
+- Canonical source review: PR #91
+- Community base before promotion: `d916a402d5342586818bc4e8c41c28f11bfc6b4f`
+- Historical release identity preserved: canonical `v0.1.0` remains bound to source commit `23a3ecc8de1f77333e12e8f21a986cfb0dff108f`; the later public baseline is versioned as `v0.2.0` rather than relabeled.
+
+Promoted or source-derived paths:
+
+- `Cargo.toml` — workspace version promoted to `0.2.0`; the community-owned `repository` URL remains `hackelia-micrantha/invokrum-community`.
+- `Cargo.lock` — target-side regenerated/re-materialized release state with the same reviewed workspace versions and registry dependency resolution; it is not represented as the canonical Git blob.
+- `crates/invokrum-schema/Cargo.toml`
+- `crates/invokrum-fs/Cargo.toml`
+- `crates/invokrum-cli/Cargo.toml`
+- `crates/invokrum-host/Cargo.toml`
+- `crates/invokrum-integrity/Cargo.toml`
+- `crates/invokrum-acquisition/Cargo.toml`
+- `crates/invokrum-distribution-json/Cargo.toml`
+- `crates/invokrum-acquisition-linux/Cargo.toml`
+- `crates/invokrum-acquisition-archive/Cargo.toml`
+- `crates/invokrum-install/Cargo.toml`
+- `crates/invokrum-verifier-ed25519/Cargo.toml`
+- `crates/invokrum-install-linux/Cargo.toml`
+- `crates/invokrum-install-delivery/Cargo.toml`
+- `CHANGELOG.md`
+- `RELEASE_NOTES_v0.2.0.md`
+- `docs/README.md`
+- `docs/releases/v0.2.0.md`
+
+Canonical-only `community-export-policy.toml`, post-cutover `fuzz/**` material, canonical Git refs/history, and unrelated private-default paths are not part of this promotion. The community repository remains independently buildable and releaseable from its own history and repository-owned release workflows.
