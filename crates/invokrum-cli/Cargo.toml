@@ -11,12 +11,12 @@ name = "invokrum"
 path = "src/main.rs"
 
 [dependencies]
-invokrum-core = { version = "0.1.0", path = "../invokrum-core" }
-invokrum-fs = { version = "0.1.0", path = "../invokrum-fs" }
-invokrum-host = { version = "0.1.0", path = "../invokrum-host" }
-invokrum-install-delivery = { version = "0.1.0", path = "../invokrum-install-delivery" }
-invokrum-integrity = { version = "0.1.0", path = "../invokrum-integrity" }
-invokrum-schema = { version = "0.1.0", path = "../invokrum-schema" }
+invokrum-core = { version = "0.2.0", path = "../invokrum-core" }
+invokrum-fs = { version = "0.2.0", path = "../invokrum-fs" }
+invokrum-host = { version = "0.2.0", path = "../invokrum-host" }
+invokrum-install-delivery = { version = "0.2.0", path = "../invokrum-install-delivery" }
+invokrum-integrity = { version = "0.2.0", path = "../invokrum-integrity" }
+invokrum-schema = { version = "0.2.0", path = "../invokrum-schema" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
