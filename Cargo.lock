@@ -131,7 +131,7 @@ dependencies = [
 
 [[package]]
 name = "invokrum-acquisition"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-digest",
  "invokrum-distribution",
@@ -139,7 +139,7 @@ dependencies = [
 
 [[package]]
 name = "invokrum-acquisition-archive"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-acquisition",
  "invokrum-digest",
@@ -148,7 +148,7 @@ dependencies = [
 
 [[package]]
 name = "invokrum-acquisition-linux"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-acquisition",
  "invokrum-digest",
@@ -157,7 +157,7 @@ dependencies = [
 
 [[package]]
 name = "invokrum-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-core",
  "invokrum-fs",
@@ -171,19 +171,19 @@ dependencies = [
 
 [[package]]
 name = "invokrum-core"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "invokrum-digest"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "invokrum-distribution"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "invokrum-distribution-json"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-digest",
  "invokrum-distribution",
@@ -193,14 +193,14 @@ dependencies = [
 
 [[package]]
 name = "invokrum-fs"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-core",
 ]
 
 [[package]]
 name = "invokrum-host"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-core",
  "invokrum-integrity",
@@ -208,7 +208,7 @@ dependencies = [
 
 [[package]]
 name = "invokrum-install"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-acquisition",
  "invokrum-distribution",
@@ -216,7 +216,7 @@ dependencies = [
 
 [[package]]
 name = "invokrum-install-delivery"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-acquisition",
  "invokrum-acquisition-archive",
@@ -230,7 +230,7 @@ dependencies = [
 
 [[package]]
 name = "invokrum-install-linux"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-acquisition",
  "invokrum-acquisition-archive",
@@ -248,7 +248,7 @@ dependencies = [
 
 [[package]]
 name = "invokrum-integrity"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-core",
  "invokrum-digest",
@@ -258,7 +258,7 @@ dependencies = [
 
 [[package]]
 name = "invokrum-schema"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "invokrum-core",
  "serde",
@@ -268,7 +268,7 @@ dependencies = [
 
 [[package]]
 name = "invokrum-verifier-ed25519"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "ed25519-dalek",
  "invokrum-digest",
@@ -455,4 +455,4 @@ checksum = "673aac59facbab8a9007c7f6108d11f63b603f7cabff99fabf650fea5c32b861"
 name = "zmij"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"
+checksum = "29666d0abbfad1e3dc4f6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"
