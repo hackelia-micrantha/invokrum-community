@@ -68,5 +68,6 @@ Promoted or source-derived paths:
 - `docs/README.md`
 - `docs/releases/v0.2.0.md`
 - `docs/release.md` — community-owned release verification examples updated from historical `v0.1.0` to the reviewed `v0.2.0` release while retaining community repository attestation identity.
+- `README.md` — community-owned status/license wording corrected so the imported later baseline is described as publicly available source, not falsely as the historical `v0.1.0` released source.
 
 Canonical-only `community-export-policy.toml`, post-cutover `fuzz/**` material, canonical Git refs/history, and unrelated private-default paths are not part of this promotion. The community repository remains independently buildable and releaseable from its own history and repository-owned release workflows.
