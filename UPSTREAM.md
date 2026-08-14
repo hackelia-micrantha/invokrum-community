@@ -49,7 +49,7 @@ Before publication, this promotion was dry-run against community `main` at `6ad7
 Promoted or source-derived paths:
 
 - `Cargo.toml` — workspace version promoted to `0.2.0`; the community-owned `repository` URL remains `hackelia-micrantha/invokrum-community`.
-- `Cargo.lock` — target-side regenerated/re-materialized release state with the same reviewed workspace versions and registry dependency resolution; it is not represented as the canonical Git blob.
+- `Cargo.lock` — exact reviewed canonical `v0.2.0` lock bytes; only Invokrum workspace package versions differ from the previous community lock.
 - `crates/invokrum-schema/Cargo.toml`
 - `crates/invokrum-fs/Cargo.toml`
 - `crates/invokrum-cli/Cargo.toml`
@@ -67,5 +67,6 @@ Promoted or source-derived paths:
 - `RELEASE_NOTES_v0.2.0.md`
 - `docs/README.md`
 - `docs/releases/v0.2.0.md`
+- `docs/release.md` — community-owned release verification examples updated from historical `v0.1.0` to the reviewed `v0.2.0` release while retaining community repository attestation identity.
 
 Canonical-only `community-export-policy.toml`, post-cutover `fuzz/**` material, canonical Git refs/history, and unrelated private-default paths are not part of this promotion. The community repository remains independently buildable and releaseable from its own history and repository-owned release workflows.
