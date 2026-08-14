@@ -4,6 +4,42 @@ All notable user-visible changes to Invokrum will be documented in this file.
 
 The format is based on Keep a Changelog principles, and versioned releases will follow Semantic Versioning once a stable public contract exists.
 
+## 0.2.0 — prerelease
+
+### Added
+
+- Canonical `invokrum.pack-bundle/v1` bundle identity and provider-neutral distribution contracts.
+- Bounded local Linux directory acquisition and bounded uncompressed POSIX ustar acquisition without filesystem extraction.
+- Exact immutable-subject candidate verification before installation.
+- Strict `ed25519-subject-v1` publisher-signature verification with normalized key fingerprints.
+- Explicit host-owned publisher authorization kept separate from cryptographic verification.
+- Linux content-addressed installation through private quarantine with deterministic unsigned `invokrum.installation/v1` and authenticated `invokrum.installation/v2` evidence.
+- Operator-facing local directory/archive install workflows for digest-only and authenticated Ed25519 claims, including Linux XDG store-root resolution.
+- Independent subprocess reference-host coverage for capability negotiation, exact-byte persistence, verification, and deterministic drift blocking.
+- Private-canonical/public-community repository topology with allowlisted, provenance-recorded promotion instead of Git-history mirroring.
+
+### Security
+
+- Bundle identity, publisher signature, host authorization, installation evidence, and composition lock evidence use distinct claim domains and cannot substitute for one another.
+- Candidate metadata cannot choose or relax host trust policy.
+- Authenticated installation requires verifier success, host-policy authorization, and exact subject agreement before persistent store mutation.
+- Local directory/archive inputs are bounded and fail closed on traversal, links, special entries, collisions, undeclared files, malformed archives, and resource-limit violations.
+- Existing content-addressed roots reject provenance upgrade, downgrade, signer substitution, and mechanism substitution in place.
+- Installation staging is private and reverified before atomic content-addressed promotion.
+
+### Distribution
+
+- `hackelia-micrantha/invokrum-community` is the public source, contribution, and release surface.
+- `v0.2.0` is the first version intended to be published from the community repository.
+- The historical canonical `v0.1.0` release remains bound to its original source commit; the later community baseline is not relabeled as `v0.1.0`.
+
+### Limitations
+
+- Secure acquisition and installation adapters currently support Linux only.
+- Remote transport, registry discovery, freshness, expiry/revocation, transparency, and rollback/freeze selection semantics are not implemented.
+- Publisher authentication establishes provenance for an immutable subject; it does not establish prompt semantic safety or runtime authorization.
+- Production publisher private-key custody/signing workflows remain external follow-up work.
+
 ## 0.1.0 — prerelease
 
 ### Added
