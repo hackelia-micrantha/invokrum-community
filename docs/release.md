@@ -88,20 +88,20 @@ A stronger cross-builder reproducible-binary claim requires hermetic toolchains 
 Verify the published checksum from the directory containing both files:
 
 ```bash
-sha256sum --check invokrum-v0.1.0-x86_64-unknown-linux-gnu.tar.gz.sha256
+sha256sum --check invokrum-v0.2.0-x86_64-unknown-linux-gnu.tar.gz.sha256
 ```
 
 On macOS:
 
 ```bash
-shasum -a 256 --check invokrum-v0.1.0-x86_64-apple-darwin.tar.gz.sha256
+shasum -a 256 --check invokrum-v0.2.0-x86_64-apple-darwin.tar.gz.sha256
 ```
 
 Verify GitHub provenance and SBOM attestations against this repository:
 
 ```bash
 gh attestation verify \
-  invokrum-v0.1.0-x86_64-unknown-linux-gnu.tar.gz \
+  invokrum-v0.2.0-x86_64-unknown-linux-gnu.tar.gz \
   --repo hackelia-micrantha/invokrum-community
 ```
 
