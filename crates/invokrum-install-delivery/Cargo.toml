@@ -7,13 +7,13 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-invokrum-acquisition = { version = "0.1.0", path = "../invokrum-acquisition" }
-invokrum-acquisition-archive = { version = "0.1.0", path = "../invokrum-acquisition-archive" }
-invokrum-distribution = { version = "0.1.0", path = "../invokrum-distribution" }
-invokrum-distribution-json = { version = "0.1.0", path = "../invokrum-distribution-json" }
-invokrum-install = { version = "0.1.0", path = "../invokrum-install" }
-invokrum-install-linux = { version = "0.1.0", path = "../invokrum-install-linux" }
-invokrum-verifier-ed25519 = { version = "0.1.0", path = "../invokrum-verifier-ed25519" }
+invokrum-acquisition = { version = "0.2.0", path = "../invokrum-acquisition" }
+invokrum-acquisition-archive = { version = "0.2.0", path = "../invokrum-acquisition-archive" }
+invokrum-distribution = { version = "0.2.0", path = "../invokrum-distribution" }
+invokrum-distribution-json = { version = "0.2.0", path = "../invokrum-distribution-json" }
+invokrum-install = { version = "0.2.0", path = "../invokrum-install" }
+invokrum-install-linux = { version = "0.2.0", path = "../invokrum-install-linux" }
+invokrum-verifier-ed25519 = { version = "0.2.0", path = "../invokrum-verifier-ed25519" }
 serde_json = "1"
 
 [lints]

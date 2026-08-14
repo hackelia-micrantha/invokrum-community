@@ -11,8 +11,8 @@ version.workspace = true
 path = "src/lib.rs"
 
 [dependencies]
-invokrum-digest = { version = "0.1.0", path = "../invokrum-digest" }
-invokrum-distribution = { version = "0.1.0", path = "../invokrum-distribution" }
+invokrum-digest = { version = "0.2.0", path = "../invokrum-digest" }
+invokrum-distribution = { version = "0.2.0", path = "../invokrum-distribution" }
 
 [lints]
 workspace = true
