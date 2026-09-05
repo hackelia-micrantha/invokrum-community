@@ -26,6 +26,12 @@ This keeps the canonical implementation authoritative without treating private G
 
 Community-only metadata or documentation can be maintained directly here when it does not affect shared implementation behavior.
 
+## Community UI
+
+If this repository introduces or materially redesigns user-facing UI, it follows the shared Phyllotaxis community directive by default: **1990s in visual character, not in capability.** Prefer plain, direct, content-first interfaces with obvious browser-native affordances and minimal decorative chrome, while retaining modern accessibility, semantics, responsive behavior, and security.
+
+See the organization-wide [community UI design directive](https://github.com/hackelia-micrantha/.github/blob/main/docs/standards/ui-design.md). Repository-specific deviations should be justified by a concrete product, usability, or accessibility requirement.
+
 ## Pull requests
 
 A pull request should state:
