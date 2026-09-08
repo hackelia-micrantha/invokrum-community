@@ -29,112 +29,108 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
 
-          cargo = Path('Cargo.toml')
-          text = cargo.read_text(encoding='utf-8')
+          cargo = Path("Cargo.toml")
+          text = cargo.read_text(encoding="utf-8")
           old = 'version = "0.2.0"\n\n[workspace.lints.rust]'
           new = 'version = "0.2.1"\n\n[workspace.lints.rust]'
           if text.count(old) != 1:
-              raise SystemExit('expected workspace version 0.2.0 exactly once')
-          cargo.write_text(text.replace(old, new), encoding='utf-8')
+              raise SystemExit("expected workspace version 0.2.0 exactly once")
+          cargo.write_text(text.replace(old, new), encoding="utf-8")
 
-          changelog = Path('CHANGELOG.md')
-          text = changelog.read_text(encoding='utf-8')
-          marker = '## 0.2.0 — prerelease\n'
-          section = '''## 0.2.1 — prerelease
-
-### Added
-
-- Credential-free public Nix flake exposing the released Invokrum CLI as `packages`, `apps`, checks, development shells, and formatter outputs.
-- Deterministic Nix smoke coverage for validate, compose, lock, and verify without private-repository credentials or SSH-agent delegation.
-
-### Distribution
-
-- Downstream consumers can adopt the reviewed public release from `hackelia-micrantha/invokrum-community` instead of depending on the private canonical repository.
-- Release tags remain human-readable adoption references while downstream Nix lockfiles retain the exact immutable commit and NAR identity.
-
-### Security
-
-- Public package evaluation/build does not require private canonical-repository access, provider credentials, signer keys, remote packs, or host mutation authority.
-- Distribution through the public release surface does not grant installation, promotion, runtime, or policy authority.
-
-'''
+          changelog = Path("CHANGELOG.md")
+          text = changelog.read_text(encoding="utf-8")
+          marker = "## 0.2.0 — prerelease\n"
+          section = "\n".join([
+              "## 0.2.1 — prerelease",
+              "",
+              "### Added",
+              "",
+              "- Credential-free public Nix flake exposing the released Invokrum CLI as `packages`, `apps`, checks, development shells, and formatter outputs.",
+              "- Deterministic Nix smoke coverage for validate, compose, lock, and verify without private-repository credentials or SSH-agent delegation.",
+              "",
+              "### Distribution",
+              "",
+              "- Downstream consumers can adopt the reviewed public release from `hackelia-micrantha/invokrum-community` instead of depending on the private canonical repository.",
+              "- Release tags remain human-readable adoption references while downstream Nix lockfiles retain the exact immutable commit and NAR identity.",
+              "",
+              "### Security",
+              "",
+              "- Public package evaluation/build does not require private canonical-repository access, provider credentials, signer keys, remote packs, or host mutation authority.",
+              "- Distribution through the public release surface does not grant installation, promotion, runtime, or policy authority.",
+              "",
+              "",
+          ])
           if text.count(marker) != 1:
-              raise SystemExit('expected one v0.2.0 changelog marker')
-          changelog.write_text(text.replace(marker, section + marker, 1), encoding='utf-8')
+              raise SystemExit("expected one v0.2.0 changelog marker")
+          changelog.write_text(text.replace(marker, section + marker, 1), encoding="utf-8")
 
-          notes = '''# Invokrum v0.2.1
+          notes = "\n".join([
+              "# Invokrum v0.2.1",
+              "",
+              "Invokrum `v0.2.1` adds a credential-free public Nix distribution surface to the community release boundary.",
+              "",
+              "## Highlights",
+              "",
+              "- Public `packages`, `apps`, `checks`, `devShells`, and formatter outputs.",
+              "- The packaged CLI is built only from public community source.",
+              "- Deterministic smoke coverage exercises validate, compose, lock, and verify with credentials and `SSH_AUTH_SOCK` absent.",
+              "- Downstream hosts can use a reviewed release tag while retaining exact commit and NAR identity in their Nix lockfile.",
+              "",
+              "## Trust boundary",
+              "",
+              "The release makes distribution distinct from authority:",
+              "",
+              "1. the community release identifies reviewed public source and artifacts;",
+              "2. a downstream lockfile binds that release to exact immutable source identity;",
+              "3. downstream adoption is a separate reviewed decision;",
+              "4. installation, policy, promotion, and runtime activation remain separate authorities.",
+              "",
+              "No private canonical-repository credential, SSH agent, provider credential, signer key, remote pack, or host mutation capability is required for normal Nix evaluation/build.",
+              "",
+              "## Compatibility",
+              "",
+              "This patch release does not intentionally change Invokrum schema, lock, bundle, installation-evidence, CLI machine-output, host RPC, or Rust API contracts. Existing `v0.2.0` behavior remains supported; `v0.2.1` adds the public Nix packaging and validation surface.",
+              "",
+              "## Release artifacts",
+              "",
+              "The existing community release pipeline publishes prerelease archives, SHA-256 checksums, SPDX SBOMs, and GitHub attestations for supported release targets. The Nix flake is part of the tagged public source and is consumed through the immutable tag/lock identity rather than through private canonical source.",
+              "",
+          ])
+          Path("RELEASE_NOTES_v0.2.1.md").write_text(notes, encoding="utf-8")
+          Path("docs/releases/v0.2.1.md").write_text(notes, encoding="utf-8")
 
-Invokrum `v0.2.1` adds a credential-free public Nix distribution surface to the community release boundary.
-
-## Highlights
-
-- Public `packages`, `apps`, `checks`, `devShells`, and formatter outputs.
-- The packaged CLI is built only from public community source.
-- Deterministic smoke coverage exercises validate, compose, lock, and verify with credentials and `SSH_AUTH_SOCK` absent.
-- Downstream hosts can use a reviewed release tag while retaining exact commit and NAR identity in their Nix lockfile.
-
-## Trust boundary
-
-The release makes distribution distinct from authority:
-
-1. the community release identifies reviewed public source and artifacts;
-2. a downstream lockfile binds that release to exact immutable source identity;
-3. downstream adoption is a separate reviewed decision;
-4. installation, policy, promotion, and runtime activation remain separate authorities.
-
-No private canonical-repository credential, SSH agent, provider credential, signer key, remote pack, or host mutation capability is required for normal Nix evaluation/build.
-
-## Compatibility
-
-This patch release does not intentionally change Invokrum schema, lock, bundle, installation-evidence, CLI machine-output, host RPC, or Rust API contracts. Existing `v0.2.0` behavior remains supported; `v0.2.1` adds the public Nix packaging and validation surface.
-
-## Release artifacts
-
-The existing community release pipeline publishes prerelease archives, SHA-256 checksums, SPDX SBOMs, and GitHub attestations for supported release targets. The Nix flake is part of the tagged public source and is consumed through the immutable tag/lock identity rather than through private canonical source.
-'''
-          Path('RELEASE_NOTES_v0.2.1.md').write_text(notes, encoding='utf-8')
-          Path('docs/releases/v0.2.1.md').write_text(notes, encoding='utf-8')
-
-          docs = Path('docs/README.md')
-          text = docs.read_text(encoding='utf-8')
-          marker = '- [v0.2.0 release notes](releases/v0.2.0.md)\n'
-          addition = '- [v0.2.1 release notes](releases/v0.2.1.md)\n' + marker
+          docs = Path("docs/README.md")
+          text = docs.read_text(encoding="utf-8")
+          marker = "- [v0.2.0 release notes](releases/v0.2.0.md)\n"
           if text.count(marker) != 1:
-              raise SystemExit('expected one v0.2.0 docs index entry')
-          docs.write_text(text.replace(marker, addition, 1), encoding='utf-8')
+              raise SystemExit("expected one v0.2.0 docs index entry")
+          docs.write_text(text.replace(marker, "- [v0.2.1 release notes](releases/v0.2.1.md)\n" + marker, 1), encoding="utf-8")
           PY
 
           cargo check --workspace
 
           python3 - <<'PY'
+          import os
           import tomllib
           from pathlib import Path
 
           def load(path):
-              with open(path, 'rb') as handle:
-                  return tomllib.load(handle)['package']
+              with open(path, "rb") as handle:
+                  return tomllib.load(handle)["package"]
 
-          before = load(Path(__import__('os').environ['RUNNER_TEMP']) / 'Cargo.lock.before')
-          after = load('Cargo.lock')
-
-          def external(packages):
-              return [p for p in packages if p.get('source') is not None]
-
-          if external(before) != external(after):
-              raise SystemExit('release version bump unexpectedly changed external dependency lock state')
-
-          old_local = {(p['name'], p['version']) for p in before if p['name'].startswith('invokrum') and p.get('source') is None}
-          new_local = {(p['name'], p['version']) for p in after if p['name'].startswith('invokrum') and p.get('source') is None}
-          old_names = {name for name, version in old_local if version == '0.2.0'}
-          new_names = {name for name, version in new_local if version == '0.2.1'}
+          before = load(Path(os.environ["RUNNER_TEMP"]) / "Cargo.lock.before")
+          after = load("Cargo.lock")
+          if [p for p in before if p.get("source") is not None] != [p for p in after if p.get("source") is not None]:
+              raise SystemExit("release bump unexpectedly changed external dependency lock state")
+          old_local = {(p["name"], p["version"]) for p in before if p["name"].startswith("invokrum") and p.get("source") is None}
+          new_local = {(p["name"], p["version"]) for p in after if p["name"].startswith("invokrum") and p.get("source") is None}
+          old_names = {name for name, version in old_local if version == "0.2.0"}
+          new_names = {name for name, version in new_local if version == "0.2.1"}
           if not old_names or old_names != new_names:
-              raise SystemExit(f'unexpected local Invokrum lock transition: {old_local!r} -> {new_local!r}')
-          if any(version != '0.2.0' for _, version in old_local):
-              raise SystemExit(f'unexpected pre-release local versions: {old_local!r}')
-          if any(version != '0.2.1' for _, version in new_local):
-              raise SystemExit(f'unexpected post-release local versions: {new_local!r}')
+              raise SystemExit(f"unexpected local lock transition: {old_local!r} -> {new_local!r}")
+          if any(version != "0.2.0" for _, version in old_local) or any(version != "0.2.1" for _, version in new_local):
+              raise SystemExit(f"unexpected local versions: {old_local!r} -> {new_local!r}")
           PY
-
       - name: Validate release branch
         run: |
           set -euo pipefail
@@ -149,4 +145,4 @@ The existing community release pipeline publishes prerelease archives, SHA-256 c
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add Cargo.toml Cargo.lock CHANGELOG.md RELEASE_NOTES_v0.2.1.md docs/README.md docs/releases/v0.2.1.md
           git commit -m 'chore(release): prepare v0.2.1'
-          git push origin HEAD:release/0.2.1
+          git push origin HEAD:${GITHUB_REF_NAME}
