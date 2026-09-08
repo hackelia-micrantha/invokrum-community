@@ -4,6 +4,23 @@ All notable user-visible changes to Invokrum will be documented in this file.
 
 The format is based on Keep a Changelog principles, and versioned releases will follow Semantic Versioning once a stable public contract exists.
 
+## 0.2.1 — prerelease
+
+### Added
+
+- Credential-free public Nix flake exposing the released Invokrum CLI as `packages`, `apps`, checks, development shells, and formatter outputs.
+- Deterministic Nix smoke coverage for validate, compose, lock, and verify without private-repository credentials or SSH-agent delegation.
+
+### Distribution
+
+- Downstream consumers can adopt the reviewed public release from `hackelia-micrantha/invokrum-community` instead of depending on the private canonical repository.
+- Release tags remain human-readable adoption references while downstream Nix lockfiles retain the exact immutable commit and NAR identity.
+
+### Security
+
+- Public package evaluation/build does not require private canonical-repository access, provider credentials, signer keys, remote packs, or host mutation authority.
+- Distribution through the public release surface does not grant installation, promotion, runtime, or policy authority.
+
 ## 0.2.0 — prerelease
 
 ### Added
