@@ -1,0 +1,56 @@
+name: Publish reviewed v0.2.1
+
+on:
+  push:
+    branches:
+      - ops/release-v0.2.1
+    paths:
+      - .github/workflows/ops-release-v0.2.1.yml
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out helper branch without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate reviewed release target
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --force --prune --tags origin main
+          main_sha="$(git rev-parse origin/main^{commit})"
+          version="$(git show origin/main:Cargo.toml | python3 -c 'import sys,tomllib; print(tomllib.loads(sys.stdin.read())["workspace"]["package"]["version"])')"
+          test "$version" = "0.2.1"
+          git show origin/main:scripts/release.py > "$RUNNER_TEMP/release.py"
+          python3 "$RUNNER_TEMP/release.py" validate-tag --tag v0.2.1
+          if git ls-remote --exit-code --tags origin refs/tags/v0.2.1 >/dev/null 2>&1; then
+            echo "v0.2.1 already exists" >&2
+            exit 1
+          fi
+          echo "main_sha=$main_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Create immutable annotated tag
+        id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: ${{ steps.release.outputs.main_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_object_sha="$(gh api --method POST "repos/$GITHUB_REPOSITORY/git/tags" -f tag=v0.2.1 -f message='Invokrum v0.2.1' -f object="$TARGET_SHA" -f type=commit --jq .sha)"
+          gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref=refs/tags/v0.2.1 -f sha="$tag_object_sha"
+
+      - name: Dispatch release workflow at immutable tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run release.yml --ref v0.2.1
