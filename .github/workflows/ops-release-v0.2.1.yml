@@ -31,8 +31,8 @@ jobs:
           main_sha="$(git rev-parse origin/main^{commit})"
           version="$(git show origin/main:Cargo.toml | python3 -c 'import sys,tomllib; print(tomllib.loads(sys.stdin.read())["workspace"]["package"]["version"])')"
           test "$version" = "0.2.1"
-          git show origin/main:scripts/release.py > "$RUNNER_TEMP/release.py"
-          python3 "$RUNNER_TEMP/release.py" validate-tag --tag v0.2.1
+          test "$(git show origin/main:Cargo.toml)" = "$(cat Cargo.toml)"
+          python3 scripts/release.py validate-tag --tag v0.2.1
           if git ls-remote --exit-code --tags origin refs/tags/v0.2.1 >/dev/null 2>&1; then
             echo "v0.2.1 already exists" >&2
             exit 1
@@ -40,7 +40,6 @@ jobs:
           echo "main_sha=$main_sha" >> "$GITHUB_OUTPUT"
 
       - name: Create immutable annotated tag
-        id: tag
         env:
           GH_TOKEN: ${{ github.token }}
           TARGET_SHA: ${{ steps.release.outputs.main_sha }}
