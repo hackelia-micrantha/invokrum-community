@@ -29,6 +29,7 @@ Documentation distinguishes between **accepted design**, **planned interfaces**,
 - [Anthesis reference-consumer conformance](../examples/anthesis-conformance/README.md)
 - [Visual identity and reusable assets](branding.md)
 - [Release and artifact verification](release.md)
+- [v0.2.1 release notes](releases/v0.2.1.md)
 - [v0.2.0 release notes](releases/v0.2.0.md)
 - [Development guide](development.md)
 - [Roadmap](roadmap.md)
