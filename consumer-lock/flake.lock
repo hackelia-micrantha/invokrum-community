@@ -1,0 +1,71 @@
+{
+  "nodes": {
+    "invokrum": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "lastModified": 1788885402,
+        "narHash": "sha256-UeZS72qM/+DKZ70P6Dg1Yk7gV20XR9zHFjH1Gio3njU=",
+        "owner": "hackelia-micrantha",
+        "repo": "invokrum-community",
+        "rev": "f8626e88978159aba52388af83f63738bdf38c58",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hackelia-micrantha",
+        "repo": "invokrum-community",
+        "rev": "f8626e88978159aba52388af83f63738bdf38c58",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1787962033,
+        "narHash": "sha256-u6z9VTZA4Kf3RkHQo9sQI7NI4Ei/uiU9vrMqOiwWP1Y=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "c5c4a43b0e8056328ec4529f735cabdb8f1942bb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "c5c4a43b0e8056328ec4529f735cabdb8f1942bb",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "invokrum": "invokrum",
+        "nixpkgs": "nixpkgs"
+      }
+    },
+    "rust-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "invokrum",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1784526465,
+        "narHash": "sha256-L37teKC6oINWG4PGZLIqbphMWvSQ0PEz+aWxAk+rIDw=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "58c6334db52d51fc5dd8877c90b01f00cf8a696b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
