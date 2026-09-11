@@ -41,7 +41,7 @@ The metadata binds the public package to one exact canonical repository/tag/comm
 
 ## Design expectations
 
-Public security claims and residual risks remain defined by the supported public contracts and threat-model documentation. In particular:
+Public security claims and residual risks remain defined by the supported public contracts and the [threat model](docs/security/threat-model.md). In particular:
 
 - public package evaluation/build must not require private repository state or credentials;
 - a public distribution release must reuse the canonical artifact bytes rather than rebuild the same product version independently;
