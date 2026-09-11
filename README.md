@@ -1,39 +1,63 @@
 # Invokrum Community
 
-Public community distribution of **Invokrum**, a deterministic prompt-overlay composition and attestation engine for governed AI contexts.
+Public distribution and community contract surface for **Invokrum**, a deterministic prompt-overlay composition and attestation engine for governed AI contexts.
 
 ## Repository role
 
-This repository is the public distribution and contribution surface for Invokrum.
+The private canonical `hackelia-micrantha/invokrum` repository owns current implementation, product build, and canonical release identity. This public repository owns the community-facing distribution surface: public release artifacts, package metadata, CLI/schema contracts, examples, manual pages, verification documentation, and contribution material that is intentionally public.
 
-The canonical development repository is maintained separately. Public implementation changes are promoted here deliberately through reviewed, allowlisted changes rather than by mirroring private repository history.
+The repository began as an independently buildable public implementation snapshot. That history remains public historical disclosure and is not erased by the current migration.
 
-The initial code baseline was imported from the final selected public `hackelia-micrantha/invokrum` source snapshot before that canonical repository changes visibility. `UPSTREAM.md` records the exact source commit and accounts for repository-relocation-only differences.
+The target release flow is:
 
-## Current status
+```text
+private canonical source
+  -> reviewed canonical tag/build
+  -> immutable archives + checksums + SBOM/provenance
+  -> byte-for-byte public promotion
+  -> invokrum-community release + binary Nix flake
+```
 
-The initial public implementation baseline is imported from canonical source snapshot `0e6083d0608d22673b7172ce3330328c64be05bc`. This repository contains the supported public Invokrum source, schemas, examples, compatibility fixtures, documentation, CI, and release tooling needed to build and evaluate the community distribution independently.
+See [Public binary distribution](docs/public-binary-distribution.md) for the distribution contract and migration ordering.
 
-The historical canonical `v0.1.0` release remains bound to its original earlier source commit. The imported community baseline includes later distribution, acquisition, authenticated-installation, and publisher-verification work and is therefore being prepared as `v0.2.0` rather than relabeled as `v0.1.0`.
+## Current transition state
+
+The current `main` branch still contains the previously public Invokrum implementation and a source-building Nix flake. That path remains temporarily available so the replacement is established before anything is removed.
+
+The planned first product release under the private-canonical/public-binary topology is `v0.3.0`. The binary cutover will not occur until canonical artifacts exist and a clean public consumer can build/run the hash-pinned public flake without private-repository credentials.
+
+After that proof:
+
+- the community flake will consume immutable public release binaries rather than compile the private implementation;
+- current buildable implementation source and source-build CI can be removed from the active tree;
+- public contracts, schemas, examples, `invokrum(1)`, release metadata, checksums/provenance guidance, and contribution material remain public;
+- prior Git history remains acknowledged rather than represented as secret again.
+
+## Release metadata
+
+Promoted binary releases use `release.json` with schema `invokrum.public-distribution/v1`, validated by [`schemas/invokrum-public-distribution-v1.schema.json`](schemas/invokrum-public-distribution-v1.schema.json).
+
+The metadata binds the public package to one exact canonical repository/tag/commit and one explicit set of platform archive SHA-256 digests. Placeholder digests are not accepted.
 
 ## Design expectations
 
-The public security claims and residual risks are defined by the [threat model](docs/security/threat-model.md) and must remain backed by controls and tests available in this repository.
+Public security claims and residual risks remain defined by the supported public contracts and threat-model documentation. In particular:
 
-The community distribution must remain independently usable:
-
-- public builds and tests cannot depend on private repository state;
-- released schemas, CLI contracts, machine-readable formats, and compatibility fixtures remain testable here;
-- package and release metadata must point to publicly accessible sources;
-- security-sensitive reports use the private reporting path described in `SECURITY.md`;
-- provenance for promoted changes records the canonical source commit or range without exposing private Git history.
+- public package evaluation/build must not require private repository state or credentials;
+- a public distribution release must reuse the canonical artifact bytes rather than rebuild the same product version independently;
+- release/package identity must remain tied to immutable hashes and canonical provenance;
+- private implementation is attacker-cost/IP protection, not a security boundary;
+- distributed binaries are assumed reverse engineerable;
+- no secret, signing key, privileged credential, or authorization decision may depend on binary opacity;
+- released schemas, CLI contracts, machine-readable formats, examples, and verification guidance remain inspectable publicly;
+- security-sensitive reports use the private reporting path described in `SECURITY.md`.
 
 ## License
 
 Invokrum Community is distributed under the Apache License 2.0. See [LICENSE](LICENSE).
 
-The imported source was publicly available under Apache-2.0 before the repository split; the cutover process preserves that license and attribution continuity without reusing the historical `v0.1.0` release identity.
+The implementation already present in this repository was publicly available under Apache-2.0 before the source-exposure cutover. The forward binary-distribution boundary does not retroactively alter that license or historical disclosure.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Shared implementation contributions may be re-ingested into the canonical development repository before a later public promotion so that the public and canonical implementations do not silently diverge.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Contributions to public contracts, packaging, examples, documentation, and other intentionally public surfaces are welcome. Implementation changes that belong to the private canonical engine require separate canonical review rather than silently establishing this repository as a second product build authority.
