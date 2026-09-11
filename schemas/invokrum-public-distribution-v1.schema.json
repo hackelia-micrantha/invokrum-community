@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hackelia-micrantha/invokrum-community/blob/main/schemas/invokrum-public-distribution-v1.schema.json",
+  "title": "Invokrum public distribution metadata v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "canonical",
+    "artifacts"
+  ],
+  "properties": {
+    "schema": {
+      "const": "invokrum.public-distribution/v1"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "canonical": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "tag",
+        "commit"
+      ],
+      "properties": {
+        "repository": {
+          "const": "hackelia-micrantha/invokrum"
+        },
+        "tag": {
+          "type": "string",
+          "pattern": "^v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target",
+          "archive",
+          "sha256"
+        ],
+        "properties": {
+          "target": {
+            "enum": [
+              "x86_64-unknown-linux-gnu",
+              "x86_64-apple-darwin",
+              "x86_64-pc-windows-msvc"
+            ]
+          },
+          "archive": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "target": {
+                "const": "x86_64-unknown-linux-gnu"
+              }
+            },
+            "required": [
+              "target"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "target": {
+                "const": "x86_64-apple-darwin"
+              }
+            },
+            "required": [
+              "target"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "target": {
+                "const": "x86_64-pc-windows-msvc"
+              }
+            },
+            "required": [
+              "target"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
+    }
+  }
+}
