@@ -1,23 +1,33 @@
 # Project governance
 
-Invokrum is currently maintained by the repository owners under a lightweight maintainer model appropriate for an early-stage project.
+Invokrum Community is currently maintained by the repository owners under a lightweight maintainer model appropriate for an early-stage distribution/community project.
+
+## Authority split
+
+`hackelia-micrantha/invokrum` is the canonical authority for current engine implementation, product builds, and canonical product release identity.
+
+`hackelia-micrantha/invokrum-community` is the public authority for intentionally public distribution surfaces, including package definitions, release metadata, schemas, examples, manual pages, verification documentation, compatibility/conformance material, and community contribution policy.
+
+The public repository must not create a second independently built executable under the same canonical product release identity. Public product binaries are promoted byte-for-byte from an authorized canonical release and bound by immutable hashes.
 
 ## Decision authority
 
-Maintainers are responsible for:
+Community maintainers are responsible for:
 
-- accepting or rejecting changes;
-- defining release scope;
-- maintaining compatibility and security policy;
-- resolving disputes about project boundaries;
+- accepting or rejecting changes to public distribution/community surfaces;
+- maintaining public compatibility and security contracts;
+- reviewing package/release metadata and public promotion evidence;
+- resolving disputes about the public/private repository boundary;
 - coordinating vulnerability response;
 - updating this governance model as the contributor base grows.
 
+Canonical implementation and build decisions remain with the canonical repository maintainers.
+
 ## Decision process
 
-Routine implementation and documentation decisions are made through pull-request review.
+Routine public documentation, packaging, schema, fixture, and community-tooling decisions are made through pull-request review.
 
-An architecture decision record is expected when a change materially affects:
+An architecture decision record or equivalent explicit design review is expected when a public change materially affects:
 
 - mechanism-versus-policy boundaries;
 - public schemas or persistent formats;
@@ -25,19 +35,27 @@ An architecture decision record is expected when a change materially affects:
 - trust boundaries or network behavior;
 - plugin execution;
 - compatibility policy;
-- public library or adapter contracts.
+- public package/release identity;
+- public library or adapter contracts;
+- the source-exposure/distribution boundary.
 
 Decisions should optimize for correctness, auditability, and maintainability rather than consensus for its own sake. Material dissent and rejected alternatives should be recorded when they improve future understanding.
 
 ## Compatibility and security changes
 
-Changes that weaken validation, alter path handling, expose sensitive values, add implicit network access, or modify an attestation boundary require explicit maintainer review.
+Changes that weaken validation, alter path handling, expose sensitive values, add implicit network access, modify an attestation boundary, or broaden public implementation exposure require explicit maintainer review.
 
-Public schema, lockfile, manifest, JSON-output, exit-code, and API changes must identify their compatibility impact.
+Public schema, lockfile, manifest, JSON-output, exit-code, API, release-metadata, and package changes must identify their compatibility impact.
+
+Private implementation source is attacker-cost/IP protection, not a security boundary. Distributed executables are assumed reverse engineerable, and no secret, signing key, privileged credential, or authorization decision may depend on binary opacity.
 
 ## Releases
 
-Maintainers approve releases after required validation passes and release artifacts are reproducible under the documented process. Release automation and support policy are tracked separately from core behavior.
+Canonical product releases are built and attested by `hackelia-micrantha/invokrum`. Community maintainers approve public distribution only after the canonical release exists and the reviewed public metadata/package definition identifies the same immutable canonical release and artifact digests.
+
+The public release process promotes exact canonical bytes; it does not rebuild the same product version independently. Public package validation, byte-comparison, anonymous download checks, and clean-consumer qualification are part of distribution acceptance.
+
+Repository-only documentation or community metadata releases may be managed independently when they do not claim a canonical Invokrum product version or replace product artifact identity.
 
 ## Becoming a maintainer
 
