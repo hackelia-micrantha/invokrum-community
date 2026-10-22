@@ -15,7 +15,7 @@ Public documentation must not include new private implementation source, interna
 
 ## Public surfaces and claim checks
 
-Review the root [README](../README.md), [documentation index](README.md), [distribution contract](public-binary-distribution.md), [Nix instructions](nix.md), [threat model](security/threat-model.md), public schemas, examples, `man/invokrum.1`, and release/verification guidance together when a change affects their claims.
+Review the root [README](../README.md), [documentation index](README.md), [distribution contract](public-binary-distribution.md), [Nix instructions](nix.md), [threat model](security/threat-model.md), public schemas, examples, release/verification guidance, and any actually published `invokrum(1)` manual artifact together when a change affects their claims. The proposed manual page is **not present** in this public repository's current tree; do not describe it as a currently validated public file.
 
 For every supported capability, distinguish **implemented in canonical source**, **validated for a supported platform**, **published as a public release**, and **planned**. In particular:
 
