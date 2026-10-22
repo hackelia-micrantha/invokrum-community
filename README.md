@@ -58,6 +58,10 @@ Invokrum Community is distributed under the Apache License 2.0. See [LICENSE](LI
 
 The implementation already present in this repository was publicly available under Apache-2.0 before the source-exposure cutover. The forward binary-distribution boundary does not retroactively alter that license or historical disclosure.
 
+## Documentation maintenance
+
+This project adopts the shared Micrantha documentation-sync process without copying its skill. The [project-specific maintenance contract](docs/documentation-maintenance.md) identifies public versus private authority, current source-build-to-binary transition limits, validation entry points, and evidence required before making release or compatibility claims.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Contributions to public contracts, packaging, examples, documentation, and other intentionally public surfaces are welcome. Implementation changes that belong to the private canonical engine require separate canonical review rather than silently establishing this repository as a second product build authority.
