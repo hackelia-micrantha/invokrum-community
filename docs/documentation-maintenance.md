@@ -1,8 +1,8 @@
 # Documentation maintenance contract
 
-**Adoption:** Micrantha shared `documentation-sync` default, unchanged.
+**Adoption:** [Micrantha documentation standard](https://github.com/hackelia-micrantha/.github/blob/main/docs/standards/documentation.md), including public-claim consistency.
 
-Apply the shared [documentation-sync skill](https://github.com/hackelia-micrantha/.github/blob/main/skills/documentation-sync/SKILL.md) and the [public-claims consistency review](https://github.com/hackelia-micrantha/.github/blob/main/docs/prompts/documentation/public-consistency-review.md). This file records Invokrum Community-specific authority, verification, and transition facts; it does not copy or replace the shared skill.
+This file records Invokrum Community-specific authority, verification, and transition facts; it does not replace the shared standard.
 
 ## Authority and public boundary
 
@@ -51,4 +51,4 @@ For a promoted binary release, additionally follow the [distribution contract](p
 
 Review public claims after canonical CLI/schema/security boundary changes, a supported-platform change, a release/tag or installation-route change, the transition in #12, or a meaningful community packaging update. Prefer event-driven checks and small project-owned fixes to parallel documentation forks.
 
-A passing docs PR does not authorize canonical release, tag creation, publication, private-source export, or changing distribution authority. Ambiguities affecting public release, security, licensing, or support claims remain explicit human decisions under the shared skill. No further local specialization is required for the current contract.
+A passing docs PR does not authorize canonical release, tag creation, publication, private-source export, or changing distribution authority. Ambiguities affecting public release, security, licensing, or support claims remain explicit human decisions under the shared standard. No further local specialization is required for the current contract.
